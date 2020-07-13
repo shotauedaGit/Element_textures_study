@@ -220,9 +220,11 @@ struct DelaunayTriangulation {
 	vector<Point> points;
 
 
-	//vector<Triangle> triangles;
-	list<Triangle> triangles;
-	//unordered_set<Triangle> triangles;
+	//vector<Triangle> triangles; //Œ»‘¶‚µ‚Ä‚¢‚éŽOŠpŒ`ƒŠƒXƒg
+	vector<bool> TriangleExit; //‚RŠpŒ`‚ª’Ç‰Á‚³‚ê‚½‚ç‚±‚¢‚Â‚à
+	
+	//list<Triangle> triangles;
+	unordered_set<Triangle> triangles;
 
 
 	Triangle getTriangleShareEdge(Edge e);// ALL SEACH
@@ -259,7 +261,7 @@ Triangle DelaunayTriangulation::getTriangleWrapingPoint(Point p) {
 }
 
 void DelaunayTriangulation::DivideTriangleAtPoint(Triangle t,Point p){
-	triangles.clear(t);
+	triangles.erase(t);
 
 	Triangle ABP(t.A, t.B, p);
 	Triangle BCP(t.B, t.C, p);
