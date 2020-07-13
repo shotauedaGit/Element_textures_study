@@ -1,0 +1,3 @@
+C:\Users\ueda\Myfolder\gitrepos\Element_textures_study\Billard\OpenglOnCli\OpenglOnCli\x64\Release\OpenglOnCli.vcxprojAssemblyReference.cache
+C:\Users\ueda\Myfolder\gitrepos\Element_textures_study\Billard\OpenglOnCli\OpenglOnCli\x64\Release\OpenglOnCli.MainForm.resources
+C:\Users\ueda\Myfolder\gitrepos\Element_textures_study\Billard\OpenglOnCli\OpenglOnCli\x64\Release\OpenglOnCli.vcxproj.GenerateResource.cache

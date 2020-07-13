@@ -23,7 +23,9 @@ private:
   EVec3f m_anglevelo;
 
 public: 
-  SolidBall( EVec3f pos );
+  SolidBall(EVec3f pos);
+  SolidBall( EVec3f pos , float radius);
+
   ~SolidBall();
   SolidBall( const SolidBall &src) { Copy(src); }
   SolidBall &operator=(const SolidBall &src){ Copy(src); return *this;}
@@ -35,12 +37,14 @@ public:
     this->m_position  = src.m_position;
     this->m_velocity  = src.m_velocity;
     this->m_angle     = src.m_angle;
-    this->m_anglevelo = src.m_anglevelo;  
+    this->m_anglevelo = src.m_anglevelo;
   }
   
   void Draw();
   void Step( float h );
-  EVec3f GetPos(){ return m_position; }
+  EVec3f GetPos() { return m_position; }
+  EVec3f GetVel() { return m_velocity; }
+  float GetR(){ return m_radius; }
   void SetVelo(const EVec3f &velo){ m_velocity = velo; }
 };
 

@@ -1,12 +1,10 @@
 #include "stdafx.h"
 
 #include "COMMON\tmath.h"
+#include "COMMON\stdc++.h"
 #include <cmath>
 #include "MainForm.h"
 #include "EventManager.h"
-
-#include <vector>
-#include <list>
 
 //todo 
 //
@@ -30,6 +28,16 @@ SolidBall::SolidBall( EVec3f pos )
   m_anglevelo = EVec3f(0,0,0);
 }
 
+SolidBall::SolidBall(EVec3f pos , float radius)
+{
+    m_radius = radius; //cm
+    m_mass = 170; //g
+    m_position = pos;
+    m_velocity = EVec3f(0, 0, 0);
+    m_angle = EVec3f(0, 0, 0);
+    m_anglevelo = EVec3f(0, 0, 0);
+}
+
 SolidBall::~SolidBall( )
 {
 }
@@ -43,8 +51,11 @@ void SolidBall::Step( float h )
   // a = G 
   // dv/dt = a  --> dv = a dt
   // dx/dt = v  --> dx = v dt
+
+  /*
   if (m_position.y() < m_radius)m_velocity.y()=0.0f;
   else m_velocity += h * Gravity   ;
+  */
   
   m_position += h * m_velocity; 
   
@@ -112,7 +123,7 @@ void SolidBall::Draw( )
   glPushMatrix();
   glTranslatef( m_position[0], m_position[1], m_position[2] );
   //glMultiMat3d(m.data());
-  DrawSphere(  20, 20, m_radius );
+  DrawSphere(  12, 12, m_radius );
   glPopMatrix();
 }
 
@@ -282,15 +293,22 @@ EventManager::EventManager()
 
 
 static EVec3f cursor_p, cursor_d;
-
-
 void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
 {
   m_btn_left = true;
   ogl->BtnDown_Trans( EVec2i(x,y) );
   
   ogl->GetCursorRay( EVec2i(x,y), cursor_p, cursor_d);
-  //m_balls.push_back(SolidBall( EVec3f(0,10,0) ) ); //ボールを新たに発生させる
+  
+  int L = 20;
+  float mx = 3, mn = 2;
+  for (int i = 0; i < 70; ++i) {
+      float px = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
+      float pz = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
+      float R = ((rand() % 100) / 100.0) * (mx - mn) + mn;
+      m_balls.push_back(SolidBall(EVec3f(px, 0, pz), R)); //ボールを新たに発生させる
+      std::cout << "  px:" << px << "  pz:" << pz << std::endl;
+  }
 } 
 
 void EventManager::BtnDownMiddle(int x, int y, OglForCLI *ogl)
@@ -328,7 +346,6 @@ void EventManager::BtnUpRight (int x, int y, OglForCLI *ogl)
 void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
 {
   if ( !m_btn_right && !m_btn_middle && !m_btn_left) return;
-
   ogl->MouseMove( EVec2i(x,y) );
 }
 
@@ -353,8 +370,8 @@ void EventManager::DrawScene()
   const static float ambi[4] = { 1.0f, 0.2f, 0, 0.3f };
   const static float spec[4] = { 1,1,1,0.3f };
   const static float shin[1] = { 64.0f };
-  const static float diffG[4] = { 0.2f, 0.8f, 0.2f, 0.3f };
-  const static float ambiG[4] = { 0.2f, 0.8f, 0.2f, 0.3f };
+  const static float diffG[4] = { 0.0f, 0.8f, 0.8f, 0.3f };
+  const static float ambiG[4] = { 0.0f, 0.8f, 0.8f, 0.3f };
   
   
   glEnable(GL_LIGHTING);
@@ -405,18 +422,41 @@ void EventManager::Step()
     //回転も TODO 井尻
   }
 
-  //交差判定 
+  //球の重なり具合から、球の速度を求める
+  float eps = 0.3f;
+  
+  for (auto &ball : m_balls)ball.SetVelo(EVec3f(0, 0, 0));
   for ( int i=0; i < (int)m_balls.size(); ++i )
   {
-    for ( int j=i+1; j < (int)m_balls.size(); ++j )
+    for ( int j=0; j < (int)m_balls.size(); ++j )
     {
-      m_balls[i];
-      m_balls[j];
-    }  
+      if (j == i)continue;
+      EVec3f f = m_balls[i].GetPos() - m_balls[j].GetPos();
+      
+      float ri = m_balls[i].GetR();
+      float rj = m_balls[i].GetR();
+
+      float Dist_i2j = f.norm();
+      float k = (ri + rj) - Dist_i2j;
+      
+      EVec3f nvi = m_balls[i].GetVel();
+      EVec3f nvj = m_balls[j].GetVel();
+
+      if (k > 0) {
+          nvi += f*k;
+          nvj -= f*k;
+      }
+      
+      m_balls[i].SetVelo(nvi);
+      m_balls[j].SetVelo(nvj);
+    }
+
+    //std::min()
   }
-
+  for (auto& ball : m_balls) {
+      //if (ball.GetVel().norm() < eps)ball.SetVelo(EVec3f(0, 0, 0));
+      float n2 = ball.GetVel().norm()/(0.6f);
+      //ball.SetVelo(ball.GetVel());
+  }
   OpenglOnCli::MainForm_RedrawPanel();
-
-
-
 }

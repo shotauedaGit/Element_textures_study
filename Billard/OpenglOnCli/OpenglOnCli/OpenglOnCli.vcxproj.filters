@@ -27,6 +27,12 @@
     <ClInclude Include="EventManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="COMMON\stdc++.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="CVT.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc">
@@ -47,6 +53,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="EventManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="CVT.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
