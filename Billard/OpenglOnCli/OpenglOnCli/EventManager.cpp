@@ -123,7 +123,7 @@ void SolidBall::Draw( )
   glPushMatrix();
   glTranslatef( m_position[0], m_position[1], m_position[2] );
   //glMultiMat3d(m.data());
-  DrawSphere(  12, 12, m_radius );
+  DrawSphere(  8, 8, m_radius );
   glPopMatrix();
 }
 
@@ -300,11 +300,13 @@ void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
   
   ogl->GetCursorRay( EVec2i(x,y), cursor_p, cursor_d);
   
-  int L = 20;
+  int L = 40;
   float mx = 3, mn = 2;
-  for (int i = 0; i < 70; ++i) {
-      float px = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
-      float pz = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
+  for (int i = 0; i < 100; ++i) {
+      //float px = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
+      float px = ((rand() % (L * 100)) / 100.0);
+      //float pz = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
+      float pz = ((rand() % (L * 100)) / 100.0);
       float R = ((rand() % 100) / 100.0) * (mx - mn) + mn;
       m_balls.push_back(SolidBall(EVec3f(px, 0, pz), R)); //ボールを新たに発生させる
       std::cout << "  px:" << px << "  pz:" << pz << std::endl;
@@ -358,13 +360,15 @@ void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
 
 void EventManager::DrawScene()
 {
+  static int FrameCnt = 0;
+  int WatiFrame = 200;
+
   //ここにレンダリングルーチンを書く
   glBegin(GL_LINES );
   glColor3d(1,0,0); glVertex3d(0,0,0); glVertex3d(10,0,0);
   glColor3d(0,1,0); glVertex3d(0,0,0); glVertex3d(0,10,0);
   glColor3d(0,0,1); glVertex3d(0,0,0); glVertex3d(0,0,10);
   glEnd();
-
  
   const static float diff[4] = { 1.0f, 0.2f, 0, 0.3f };
   const static float ambi[4] = { 1.0f, 0.2f, 0, 0.3f };
@@ -372,7 +376,6 @@ void EventManager::DrawScene()
   const static float shin[1] = { 64.0f };
   const static float diffG[4] = { 0.0f, 0.8f, 0.8f, 0.3f };
   const static float ambiG[4] = { 0.0f, 0.8f, 0.8f, 0.3f };
-  
   
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
@@ -396,14 +399,18 @@ void EventManager::DrawScene()
   glVertex3f( FLOOR_WIDTH, 0, FLOOR_LENGTH);
   glVertex3f(-FLOOR_WIDTH, 0, FLOOR_LENGTH);
   glEnd();
- 
-  for ( auto &it : m_balls ) it.Draw();
+  
+  FrameCnt++;
+  if(FrameCnt >= WatiFrame)for ( auto &it : m_balls ) it.Draw();
 
+  /*
   glLineWidth(10);
   glBegin(GL_LINES );
   EVec3f tmp = cursor_p + 100*cursor_d;
   glVertex3fv ( cursor_p.data() );
   glVertex3fv ( tmp.data() );
+  */
+
   glEnd();
 }
 
@@ -417,7 +424,7 @@ void EventManager::Step()
 
   for ( auto &it : m_balls ) 
   {
-    it.Step( 0.01 );
+    it.Step( 0.05 );
     //移動計算 OK
     //回転も TODO 井尻
   }
