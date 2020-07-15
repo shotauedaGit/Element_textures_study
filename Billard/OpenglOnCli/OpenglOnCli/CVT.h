@@ -1,6 +1,5 @@
 #pragma once
 #include "COMMON\stdc++.h"
-#include <unordered_set>
 //#include <unordered_set>
 using namespace std;
 
@@ -56,6 +55,10 @@ struct Point {
 	float Cross_z(Point tg) {//クロス関のz成分.平面上の座標なのでこれしかいらない.
 		return x * tg.y - y * tg.x;
 	}
+
+	void DBG(string name) {
+		cout << fixed << setprecision(3) <<name<<"("<< x << "," << y <<")"<< endl;
+	}
 };
 
 struct Edge {// v0 ---> v1
@@ -65,6 +68,11 @@ struct Edge {// v0 ---> v1
 		return (v0 == e.v0) && (v1 == e.v1) || (v0 == e.v1) && (v1 == e.v0);//逆順も考慮しておく
 	}
 	Point v0, v1;
+
+	void DBG(string name) {
+		cout << name << endl;
+		v0.DBG("v0");v1.DBG("v1");
+	}
 };
 
 struct Circle {
@@ -82,6 +90,8 @@ struct Triangle {
 	Point A, B, C;
 	Edge AB, BC, CA;
 	Circle Outer;
+
+	bool exist = true;
 
 	Triangle() {}
 	Triangle(Point _a,Point _b,Point _c):A(_a), B(_b), C(_c){
@@ -103,19 +113,22 @@ struct Triangle {
 	Circle getOuterCentroid();//外心を返す
 	Edge OppositeEdge(Point p);//反対の辺を返す
 	Point OppositePonit(Edge e);//反対の頂点を返す
-	
-
-
 	bool isIncluded(Point p);//この頂点は内包されているか？？
-	
 	bool isIncluded(Edge e);//この辺を含んでいるか？？
 	bool isPointShared(Triangle t);//この頂点を含んでいるか？？
 
+	bool operator==(Triangle &t);
+
+	void del();//delete this triangles
 
 
-
-
-
+	void DBG(string name) {
+		cout << name << endl;
+		A.DBG("A"); B.DBG("B"); C.DBG("C");
+		Outer.center.DBG("O");
+		if (exist)cout << "exist" << endl;
+		else cout << "deleted" << endl;
+	}
 
 };
 
@@ -124,6 +137,10 @@ Triangle Triangle::getTriangleShareEdge(Edge) {
 	
 }
 */
+
+void Triangle::del() {
+	exist = false;
+}
 
 Circle Triangle::getOuterCentroid() {
 	float tmp = 2.0 * ((B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x));
@@ -175,6 +192,11 @@ bool Triangle::isPointShared(Triangle t) {
 			(t.C == A || t.C == B || t.C == C);
 }
 
+bool Triangle::operator==(Triangle& t) {
+	return (AB == t.AB || AB == t.BC || AB == t.CA) && (BC == t.AB || BC == t.BC || BC == t.CA);
+}
+
+
 bool Triangle::isIncluded(Edge e) {
 	return (AB == e) || (BC == e) || (CA == e);
 }
@@ -220,20 +242,22 @@ struct DelaunayTriangulation {
 	vector<Point> points;
 
 
-	//vector<Triangle> triangles; //現存している三角形リスト
-	vector<bool> TriangleExit; //３角形が追加されたらこいつも
+	vector<Triangle> triangles; //現存している三角形リスト
+	//vector<bool> TriangleExit; //３角形が追加されたらこいつも
 	
 	//list<Triangle> triangles;
-	unordered_set<Triangle> triangles;
+	//unordered_set<Triangle> triangles;
 
 
-	Triangle getTriangleShareEdge(Edge e);// ALL SEACH
-	Triangle getTriangleWrapingPoint(Point p);// all search
-	
-	void DivideTriangleAtPoint(Triangle t,Point p);//三角形をその点で分割
+	int getTriangleIdxShareEdge(Edge e);// ALL SEACH
+	int getTriangleIdxWrapingPoint(Point p);// all search
+	int sameTriangleIdx(Triangle T);// All search from "triangles(vector)"
+
+	void DivideTriangleAtPoint(int Triangleidx,Point p);//(指定したインデックスの)三角形をその点で分割
 	void Flip_FromTriangle(Triangle t);
 
 	void delTriangle(Triangle t);
+	void delTriangle_idx(int idx);//somosomo三角形消してるのはFlipの時だけだった
 	void addTriangle(Triangle t);
 
 	void Assignpoints(vector<Point> pts);
@@ -243,33 +267,46 @@ struct DelaunayTriangulation {
 
 };
 
-
-Triangle DelaunayTriangulation::getTriangleShareEdge(Edge e) {
-	for (Triangle t : triangles) {
-		if (t.isIncluded(e))return t;
+int DelaunayTriangulation::sameTriangleIdx(Triangle T) {
+	int lim = triangles.size();
+	for (int i = lim - 1; i>=0; --i) {
+		if (triangles[i] == T && triangles[i].exist)return i;
 	}
-
-	return errT;
+	return -1;
 }
 
-Triangle DelaunayTriangulation::getTriangleWrapingPoint(Point p) {
-	for (Triangle t : triangles) {
-		if (t.isIncluded(p))return t;
-	}
 
-	return errT;
+int DelaunayTriangulation::getTriangleIdxShareEdge(Edge e) {
+	int lim = triangles.size();
+	for (int i = lim - 1; i >= 0; --i) {
+		if (triangles[i].isIncluded(e) && triangles[i].exist)return i;
+	}
+	return -1;
 }
 
-void DelaunayTriangulation::DivideTriangleAtPoint(Triangle t,Point p){
-	triangles.erase(t);
+int DelaunayTriangulation::getTriangleIdxWrapingPoint(Point p) {
+	int lim = triangles.size();
+	for (int i = lim - 1; i >= 0; --i) {
+		if (triangles[i].isIncluded(p) && triangles[i].exist)return i;
+	}
+	return -1;
+}
+
+void DelaunayTriangulation::DivideTriangleAtPoint(int Triangleidx,Point p){
+	if(Triangleidx != -1)triangles[Triangleidx].exist = false;
+	else {
+		//DBG
+	}
+
+	Triangle t = triangles[Triangleidx];
 
 	Triangle ABP(t.A, t.B, p);
 	Triangle BCP(t.B, t.C, p);
 	Triangle ACP(t.A, t.C, p);
 
-	triangles.insert(ABP);
-	triangles.insert(BCP);
-	triangles.insert(ACP);
+	addTriangle(ABP);
+	addTriangle(BCP);
+	addTriangle(ACP);
 }
 
 void DelaunayTriangulation::Flip_FromTriangle(Triangle t) {
@@ -283,17 +320,21 @@ void DelaunayTriangulation::Flip_FromTriangle(Triangle t) {
 
 		int cnt = 0;
 		Triangle T1, T2;
-		for (Triangle t : triangles) {
-			if (t.isIncluded(e) && cnt == 0) { T1 = t; ++cnt; }
-			if (t.isIncluded(e) && cnt == 1) { T2 = t; break; }
+
+		int idx_T1 = -1;
+		int idx_T2 = -1;
+		
+		for (int lim = triangles.size(), i = lim - 1; i >= 0; --i ) {
+			if (triangles[i].isIncluded(e) && cnt == 0) { T1 = t; idx_T1 = i; ++cnt; continue; }
+			if (triangles[i].isIncluded(e) && cnt == 1) { T2 = t; idx_T2 = i; break; }
 		}
 
 		Point D = T2.OppositePonit(e);
-		Circle O = T1.getOuterCentroid();
+		Circle O = T1.Outer;
 
 		if (O.center.Dist(D) < O.r) { //FLIP!!!!!!!!!!
-			delTriangle(T1);
-			delTriangle(T2);
+			delTriangle_idx(idx_T1);
+			delTriangle_idx(idx_T2);
 
 			addTriangle(Triangle(T1.A, T1.C, D));
 			addTriangle(Triangle(T1.B, T1.C, D));
@@ -308,11 +349,15 @@ void DelaunayTriangulation::Flip_FromTriangle(Triangle t) {
 
 //ここを工夫すれば、頂点からそれに属する三角形の集合をもとめられる??
 
-void DelaunayTriangulation::delTriangle(Triangle t) {
-	triangles.erase(t);
+void DelaunayTriangulation::delTriangle(Triangle t) {//使わないかも（消去するとき、その直前に全探索して探してきてるものなので）
+	int idx = sameTriangleIdx(t);
+	triangles[idx].exist = false;
 }
+
+void DelaunayTriangulation::delTriangle_idx(int idx) { triangles[idx].exist = false; }
+
 void DelaunayTriangulation::addTriangle(Triangle t) {
-	triangles.insert(t);
+	triangles.push_back(t);
 }
 
 void DelaunayTriangulation::Assignpoints(vector<Point> pts) {
@@ -334,7 +379,7 @@ void DelaunayTriangulation::Init(float w, float h,int n){ //母点の列と巨大３角形
 
 	// 巨大な３角形を作る
 	hugeTriangle = Triangle(Point(0.0,h+w) , Point(w+h*2.0,-h),Point(-w - h * 2.0, -h));
-	triangles.insert(hugeTriangle);
+	addTriangle(hugeTriangle);
 
 
 	//母点を格納（ランダムに決める）
@@ -351,9 +396,9 @@ void DelaunayTriangulation::Init(float w, float h,int n){ //母点の列と巨大３角形
 void DelaunayTriangulation::execute() {
 	
 	for (Point pi : points) {
-		Triangle T = getTriangleWrapingPoint(pi);
-		DivideTriangleAtPoint(T, pi);
-		Flip_FromTriangle(T);
+		int stidx = getTriangleIdxWrapingPoint(pi);
+		DivideTriangleAtPoint(stidx, pi);
+		Flip_FromTriangle(triangles[stidx]);
 	}
 }
 

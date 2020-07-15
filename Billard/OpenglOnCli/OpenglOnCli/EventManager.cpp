@@ -297,11 +297,12 @@ void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
 {
   m_btn_left = true;
   ogl->BtnDown_Trans( EVec2i(x,y) );
-  
   ogl->GetCursorRay( EVec2i(x,y), cursor_p, cursor_d);
-  
+
   int L = 20;
   float mx = 3, mn = 2;
+
+
   for (int i = 0; i < 70; ++i) {
       float px = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
       float pz = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
