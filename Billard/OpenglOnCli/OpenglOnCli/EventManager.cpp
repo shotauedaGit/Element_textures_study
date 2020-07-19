@@ -123,7 +123,7 @@ void SolidBall::Draw( )
   glPushMatrix();
   glTranslatef( m_position[0], m_position[1], m_position[2] );
   //glMultiMat3d(m.data());
-  DrawSphere(  8, 8, m_radius );
+  DrawSphere(  16, 16, m_radius );
   glPopMatrix();
 }
 
@@ -300,13 +300,13 @@ void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
   
   ogl->GetCursorRay( EVec2i(x,y), cursor_p, cursor_d);
   
-  int L = 40;
+  float L = 45.0f;
   float mx = 3, mn = 2;
-  for (int i = 0; i < 100; ++i) {
+  for (int i = 0; i < 400; ++i) {
       //float px = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
-      float px = ((rand() % (L * 100)) / 100.0);
+      float px = (((float)rand() / RAND_MAX) * 2 * L) - L;
       //float pz = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
-      float pz = ((rand() % (L * 100)) / 100.0);
+      float pz = (((float)rand() / RAND_MAX) * 2 * L) - L;
       float R = ((rand() % 100) / 100.0) * (mx - mn) + mn;
       m_balls.push_back(SolidBall(EVec3f(px, 0, pz), R)); //ボールを新たに発生させる
       std::cout << "  px:" << px << "  pz:" << pz << std::endl;
@@ -424,14 +424,13 @@ void EventManager::Step()
 
   for ( auto &it : m_balls ) 
   {
-    it.Step( 0.05 );
+    it.Step( 0.02 );
     //移動計算 OK
     //回転も TODO 井尻
   }
 
   //球の重なり具合から、球の速度を求める
-  float eps = 0.3f;
-  
+  float eps = 0.05f, vb = 0.5f;
   for (auto &ball : m_balls)ball.SetVelo(EVec3f(0, 0, 0));
   for ( int i=0; i < (int)m_balls.size(); ++i )
   {
@@ -444,7 +443,7 @@ void EventManager::Step()
       float rj = m_balls[i].GetR();
 
       float Dist_i2j = f.norm();
-      float k = (ri + rj) - Dist_i2j;
+      float k = (ri + rj)*1.2f - Dist_i2j;
       
       EVec3f nvi = m_balls[i].GetVel();
       EVec3f nvj = m_balls[j].GetVel();
@@ -457,6 +456,13 @@ void EventManager::Step()
       m_balls[i].SetVelo(nvi);
       m_balls[j].SetVelo(nvj);
     }
+
+    /*
+    if (m_balls[i].GetVel().norm() > vb) {
+        EVec3f v = m_balls[i].GetVel();
+        m_balls[i].SetVelo(v * 1.5f);
+    }
+    */
 
     //std::min()
   }
