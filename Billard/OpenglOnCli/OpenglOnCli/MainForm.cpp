@@ -43,6 +43,7 @@ static void CALLBACK MyTimerProc(
 
 MainForm::MainForm(void)
 {
+  cout << "MainForm::Constluctor" << endl;
   m_ogl = 0;
   InitializeComponent();
   m_ogl = new OglForCLI(GetDC((HWND)m_main_panel->Handle.ToPointer()));

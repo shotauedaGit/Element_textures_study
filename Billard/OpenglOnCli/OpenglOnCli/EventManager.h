@@ -1,5 +1,6 @@
 #pragma once
 #include "COMMON/OglForCLI.h"
+#include "CVT.h"
 
 #pragma unmanaged 
 
@@ -46,6 +47,7 @@ public:
   EVec3f GetVel() { return m_velocity; }
   float GetR(){ return m_radius; }
   void SetVelo(const EVec3f &velo){ m_velocity = velo; }
+  void SetPos(const float x,const float y) { m_position = EVec3f(x, 0.0f, y); }
 };
 
 
@@ -60,7 +62,9 @@ private:
   EventManager();
 
   bool m_btn_right, m_btn_left, m_btn_middle;
-  std::vector<SolidBall> m_balls;
+  std::vector<SolidBall> m_balls;//Solid ball
+  CVT m_cvt;
+
 public: 
   static EventManager* GetInst(){
     static EventManager p;
@@ -68,16 +72,15 @@ public:
   }
 
 
-
   void BtnDownLeft  (int x, int y, OglForCLI *ogl);
   void BtnDownMiddle(int x, int y, OglForCLI *ogl);
   void BtnDownRight (int x, int y, OglForCLI *ogl);
-  void BtnUpLeft    (int x, int y, OglForCLI *ogl);
+  void BtnUpLeft    (int x, int y, OglForCLI *ogl);//押上の時に表示させたいなぁ.....（CVTに収束判定を聞いて、収束していたら再びランダムでやり始める）
   void BtnUpMiddle  (int x, int y, OglForCLI *ogl);
   void BtnUpRight   (int x, int y, OglForCLI *ogl);
   void MouseMove    (int x, int y, OglForCLI *ogl);
-  void DrawScene();
-  void Step();
+  void DrawScene();//再描画、収束するまで描画しないっていう指定もしたい
+  void Step();//１フレームごとの処理(収束するまではイテレーション、そうでないときは何もしない)
 
 
 
