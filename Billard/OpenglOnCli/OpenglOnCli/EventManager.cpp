@@ -319,6 +319,7 @@ void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
   */
 
   //if (m_cvt.isFinished == false)m_cvt.Randomize();
+  m_cvt.Randomize();
   if (m_cvt.isFinished == false)m_cvt.IterStep();
 } 
 
@@ -420,15 +421,17 @@ void EventManager::DrawScene()
   glVertex3f(-FLOOR_WIDTH,0, -FLOOR_LENGTH);
 
   glEnd();
+
+  bool DBG = false;
   
  
-  //for ( auto &it : m_balls ) it.Draw();
+  for ( auto &it : m_balls ) it.Draw();
 
   for (int i = 0; i < m_cvt.triangles.size(); ++i) {
       if (m_cvt.triangles[i].exist) {
           Triangle ti = m_cvt.triangles[i];
 
-          cout << "GRAW " << i << " th triangle" << endl;
+          if(DBG)cout << "GRAW " << i << " th triangle" << endl;
 
           Point tA = ti.A; EVec3f vA(tA.x, 0.1, tA.y);
           Point tB = ti.B; EVec3f vB(tB.x, 0.1, tB.y);
@@ -460,7 +463,7 @@ void EventManager::DrawScene()
       }
   }
 
-  cout << "********Draw*********" << endl;
+  if (DBG)cout << "********Draw*********" << endl;
 
   /*
   glLineWidth(10);
@@ -526,11 +529,13 @@ void EventManager::Step()
   }
   */
 
+  bool DBG = false;
+
   for (int i = 0; i < m_cvt.nV; ++i) {
       m_balls[i].SetPos( m_cvt.points[i].x, m_cvt.points[i].y);
   }
 
   //m_cvt.IterStep();
   OpenglOnCli::MainForm_RedrawPanel();
-  cout << "********Step*********" << endl;
+  if (DBG)cout << "********Step*********" << endl;
 }

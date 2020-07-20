@@ -170,49 +170,6 @@ vector<int> CVT::FixOrder(vector<int> poly) {//getALLTriangleIdxSharePointの順番
 	return ret;
 }
 
-vector<Point> CVT::CentroidVoronoi() {//ボロノイ重心を求めていく
-	vector<Point> ctv(nV);
-
-	float change = 0.0f;
-
-	for (int i = 0; i < points.size(); ++i) {
-		cout << "VOLONOI ** " << i << "th points processing" << endl;
-
-		Point pi = points[i];//  i番目の母点
-		Point cent(0.0f, 0.0f);
-
-		vector<int> IdxAroundp = getALLTriangleIdxSharePoint(pi);
-		vector<int> fixed = FixOrder(IdxAroundp);
-
-		int n = fixed.size();
-		vector<Triangle> poly;
-		float polyS = 0.0f;
-		for (int j = 0; j < n; ++j) {
-			Point p = triangles[fixed[j]].Outer.center;
-			Point q = triangles[fixed[(j + 1) % n]].Outer.center;
-
-			Triangle tj(pi, p, q);
-			cent = cent + ((pi + p + q) / 3.0) * tj.S;
-			polyS += tj.S;
-		}
-
-		cent = cent / polyS;//i番目の母点のボロノイ重心
-		ctv[i] = cent;
-
-		change += pi.Dist(cent);
-	}
-
-	if (change < eps * nV)isFinished = true;
-	return ctv;
-}
-
-
-
-
-
-
-
-
 
 
 void CVT::DivideTriangleAtPoint(int Triangleidx, Point p) {
@@ -258,13 +215,13 @@ void CVT::Flip_FromTriangle(Triangle t) {
 
 		int lim = triangles.size();
 		for (int i = lim - 1; i >= 0; --i) {
-			if (triangles[i].exist &&triangles[i].isIncluded(e) && cnt == 0) { T1 = triangles[i]; idx_T1 = i; ++cnt; continue; }
+			if (triangles[i].exist &&triangles[i].isIncluded(e) && cnt == 0) { T1 = triangles[i]; idx_T1 = i; ++cnt;}
 			else if (triangles[i].exist &&triangles[i].isIncluded(e) && cnt == 1) { T2 = triangles[i]; idx_T2 = i; break; }
 		}
 
 		cout << "    flipping::ABC,ABD ::" << idx_T1 << "," << idx_T2 << endl;
 		if (idx_T2 == -1) {
-			cout << "      idx_T2 == -1 continue" << endl;
+			cout << "      idx_T2 == -1 continue !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 			continue;
 		}
 
@@ -325,6 +282,7 @@ void CVT::Init(float w, float h, int n) { //母点の列と巨大３角形を生成
 
 	cout << "CVT::Init" << endl;
 
+	triangles.clear();
 	srand(time(NULL));
 	points.resize(nV);
 	VCpoints.resize(nV);
@@ -347,6 +305,11 @@ void CVT::Init(float w, float h, int n) { //母点の列と巨大３角形を生成
 
 void CVT::Randomize() {//isFinishedを初期化している
 	isFinished = false;
+	triangles.clear();
+
+	hugeTriangle = Triangle(Point(0.0, height + width), Point(width + height * 2.0, -height), Point(-width - height * 2.0, -height));
+	addTriangle(hugeTriangle);
+
 	for (int i = 0; i < nV; ++i) {
 		float rx = ((float)rand() / RAND_MAX) * width * 2.0 - width;
 		float ry = ((float)rand() / RAND_MAX) * height * 2.0 - height;
@@ -375,6 +338,43 @@ void CVT::DelaunayTrianglaion() {
 		++i;
 	}
 }
+
+vector<Point> CVT::CentroidVoronoi() {//ボロノイ重心を求めていく
+	vector<Point> ctv(nV);
+
+	float change = 0.0f;
+
+	for (int i = 0; i < points.size(); ++i) {
+		cout << "VOLONOI ** " << i << "th points processing" << endl;
+
+		Point pi = points[i];//  i番目の母点
+		Point cent(0.0f, 0.0f);
+
+		vector<int> IdxAroundp = getALLTriangleIdxSharePoint(pi);
+		vector<int> fixed = FixOrder(IdxAroundp);
+
+		int n = fixed.size();
+		vector<Triangle> poly;
+		float polyS = 0.0f;
+		for (int j = 0; j < n; ++j) {
+			Point p = triangles[fixed[j]].Outer.center;
+			Point q = triangles[fixed[(j + 1) % n]].Outer.center;
+
+			Triangle tj(pi, p, q);
+			cent = cent + ((pi + p + q) / 3.0) * tj.S;
+			polyS += tj.S;
+		}
+
+		cent = cent / polyS;//i番目の母点のボロノイ重心
+		ctv[i] = cent;
+
+		change += pi.Dist(cent);
+	}
+
+	if (change < eps * nV)isFinished = true;
+	return ctv;
+}
+
 
 void CVT::IterStep() {
 	/*

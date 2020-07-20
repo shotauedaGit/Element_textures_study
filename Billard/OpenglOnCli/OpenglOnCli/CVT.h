@@ -190,7 +190,7 @@ struct CVT {
 	//unordered_set<Triangle> triangles;
 
 	CVT() {
-		Init(10.0f, 10.0f, 8);
+		Init(40.0f, 40.0f, 25);
 	}
 
 	CVT(float _w, float _h, int _numberOfVertices) {
@@ -219,6 +219,9 @@ struct CVT {
 	void Init(float w, float h,int n);
 
 	void DelaunayTrianglaion();
+
+	void DBG_idx_DelTri(int tgtIdx);
+	void DBG_idx_CentVolo(int tgtIdx);
 
 	vector<int> FixOrder(vector<int> poly);
 	vector<Point> CentroidVoronoi();
