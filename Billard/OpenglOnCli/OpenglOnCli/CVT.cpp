@@ -443,7 +443,6 @@ void CVT::DBG_idx_DelTri(int tgtidx) {//execute whole processing around i th poi
 
 	//cout << "start Flip" << endl;
 	Flip_FromTriangle(triangles[stidx]);
-
 	doneDelauny = tgtidx;
 
 }

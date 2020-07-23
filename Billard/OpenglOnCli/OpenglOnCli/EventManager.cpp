@@ -422,6 +422,23 @@ void EventManager::DrawScene()
   glLineWidth(1);
   glBegin(GL_LINES );
   glNormal3f(0,1,0);
+
+  float w = m_cvt.width;
+  float h = m_cvt.height;
+
+  glVertex3f(-w, 0, -h);
+  glVertex3f(w, 0, -h);
+
+  glVertex3f(w, 0, -h);
+  glVertex3f(w, 0, h);
+
+  glVertex3f(w, 0, h);
+  glVertex3f(-w, 0, h);
+
+  glVertex3f(-w, 0, h);
+  glVertex3f(-w, 0, -h);
+
+  /*
   glVertex3f(-FLOOR_WIDTH,0, -FLOOR_LENGTH);
   glVertex3f( FLOOR_WIDTH,0, -FLOOR_LENGTH);
 
@@ -433,17 +450,19 @@ void EventManager::DrawScene()
 
   glVertex3f(-FLOOR_WIDTH, 0, FLOOR_LENGTH);
   glVertex3f(-FLOOR_WIDTH,0, -FLOOR_LENGTH);
+  */
 
   glEnd();
 
-  bool DBG = false;
+  bool DBG = false; 
+  bool showDelaunay = false;
   
   int lim;
   //if (m_cvt.doneDelauny <= m_cvt.nV-1)lim = m_cvt.doneDelauny;
   for (int i = 0; i < m_cvt.nV; ++i) m_balls[i].Draw();
 
   for (int i = 0; i < m_cvt.triangles.size(); ++i) {
-      if (m_cvt.triangles[i].exist) {
+      if (m_cvt.triangles[i].exist && showDelaunay) {
           Triangle ti = m_cvt.triangles[i];
 
           if(DBG)cout << "GRAW " << i << " th triangle" << endl;
@@ -544,21 +563,23 @@ void EventManager::Step()
   }
   */
 
-  bool DBG = false;
 
-  if (executeIter) {
-      if (m_cvt.isFinished == false)m_cvt.IterStep();
-  }
-  
-  
-  for (int i = 0; i < m_cvt.nV; ++i) {
-      m_balls[i].SetPos( m_cvt.points[i].x, m_cvt.points[i].y);
-  }
 
 
 
 
   //m_cvt.IterStep();
   OpenglOnCli::MainForm_RedrawPanel();
+  bool DBG = false;
+
+  if (executeIter) {
+      if (m_cvt.isFinished == false)m_cvt.IterStep();
+  }
+
+  for (int i = 0; i < m_cvt.nV; ++i) {
+      m_balls[i].SetPos(m_cvt.points[i].x, m_cvt.points[i].y);
+  }
+
+
   if (DBG)cout << "********Step*********" << endl;
 }

@@ -202,7 +202,7 @@ struct CVT {
 	//unordered_set<Triangle> triangles;
 
 	CVT() {
-		Init(60.0f, 60.0f, 150);
+		Init(50.0f, 50.0f, 300);
 	}
 
 	CVT(float _w, float _h, int _numberOfVertices) {
