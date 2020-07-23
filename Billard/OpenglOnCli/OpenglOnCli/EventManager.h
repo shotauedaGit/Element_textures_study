@@ -24,6 +24,9 @@ private:
   EVec3f m_anglevelo;
 
 public: 
+
+  
+
   SolidBall(EVec3f pos);
   SolidBall( EVec3f pos , float radius);
 
@@ -66,6 +69,9 @@ private:
   CVT m_cvt;
 
 public: 
+
+  bool executeIter = false;
+
   static EventManager* GetInst(){
     static EventManager p;
     return &p;

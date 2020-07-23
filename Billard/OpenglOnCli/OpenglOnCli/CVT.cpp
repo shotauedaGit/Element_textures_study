@@ -69,6 +69,11 @@ bool Triangle::isPointShared(Triangle t) {
 		(t.C == A || t.C == B || t.C == C);
 }
 
+bool Triangle::isPointShared(Point p) {
+	return  (p == A || p == B || p == C);
+}
+
+
 bool Triangle::operator==(Triangle& t) {
 	return (AB == t.AB || AB == t.BC || AB == t.CA) && (BC == t.AB || BC == t.BC || BC == t.CA);
 }
@@ -142,7 +147,9 @@ int CVT::getTriangleIdxWrapingPoint(Point p) {//exist check ok
 vector<int> CVT::getALLTriangleIdxSharePoint(Point p) {//exist check ok
 	vector<int> ret;
 	for (int i = 0; i < triangles.size(); ++i) {
-		if (triangles[i].exist && triangles[i].isIncluded(p))ret.push_back(i);
+		if (triangles[i].exist && triangles[i].isPointShared(p)) {
+			if (!triangles[i].isEdgeShared(hugeTriangle))ret.push_back(i);
+		}
 	}
 	return ret;
 }
@@ -201,15 +208,14 @@ void CVT::Flip_FromTriangle(Triangle t) {
 	st.push(t.CA);
 
 	while (!st.empty()) {
-		cout << "    Flipping st.size() = " << st.size() << endl;
+		//cout << "    Flipping st.size() = " << st.size() << endl;
 		Edge e = st.top(); st.pop();
-		e.DBG("Now AB");
+		//e.DBG("Now AB");
 
 		if (isSuperTriEdge(e))continue;
 
 		int cnt = 0;
 		Triangle T1, T2;
-
 		int idx_T1 = -1;//見つからないときバグってる
 		int idx_T2 = -1;
 
@@ -219,14 +225,16 @@ void CVT::Flip_FromTriangle(Triangle t) {
 			else if (triangles[i].exist &&triangles[i].isIncluded(e) && cnt == 1) { T2 = triangles[i]; idx_T2 = i; break; }
 		}
 
-		cout << "    flipping::ABC,ABD ::" << idx_T1 << "," << idx_T2 << endl;
+		//cout << "    flipping::ABC,ABD ::" << idx_T1 << "," << idx_T2 << endl;
 		if (idx_T2 == -1) {
-			cout << "      idx_T2 == -1 continue !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+			//cout << "      idx_T2 == -1 continue !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 			continue;
 		}
 
-
+		Point A = e.v0, B = e.v1;
+		Point C = T1.OppositePonit(e);
 		Point D = T2.OppositePonit(e);
+
 		Circle O = T1.Outer;
 
 		if (O.center.Dist(D) < O.r) { //FLIP!!!!!!!!!!
@@ -235,13 +243,13 @@ void CVT::Flip_FromTriangle(Triangle t) {
 			delTriangle_idx(idx_T1);
 			delTriangle_idx(idx_T2);
 
-			addTriangle(Triangle(T1.A, T1.C, D));
-			addTriangle(Triangle(T1.B, T1.C, D));
+			addTriangle(Triangle(A, C, D));
+			addTriangle(Triangle(B, C, D));
 
-			st.push(Edge(T1.A, D));
-			st.push(Edge(T1.B, D));
-			st.push(Edge(T1.C, D));
-			st.push(Edge(T1.A, T1.C));
+			st.push(Edge(A, D));
+			st.push(Edge(B, D));
+			st.push(Edge(C, D));
+			st.push(Edge(A, C));
 		}
 	}
 }
@@ -268,7 +276,7 @@ void CVT::Assignpoints(vector<Point> pts) {//足りないやつ入れたら何もしないよ
 }
 
 void CVT::AssignCentroid() {
-	points = VCpoints;
+	Assignpoints(VCpoints);
 }
 
 
@@ -282,17 +290,20 @@ void CVT::Init(float w, float h, int n) { //母点の列と巨大３角形を生成
 
 	cout << "CVT::Init" << endl;
 
-	triangles.clear();
+	
 	srand(time(NULL));
 	points.resize(nV);
 	VCpoints.resize(nV);
 
+	//ここってRandmize()でいい..................
+
 	// 巨大な３角形を作る
+	
+	/*
+	triangles.clear();
 	hugeTriangle = Triangle(Point(0.0, h + w ), Point(w + h * 2.0, -h), Point(-w - h * 2.0, -h));
 	addTriangle(hugeTriangle);
-
 	cout << "CVT::Init vector resized" << endl;
-
 
 	//母点を格納（ランダムに決める）
 	for (int i = 0; i < nV; ++i) {
@@ -301,37 +312,53 @@ void CVT::Init(float w, float h, int n) { //母点の列と巨大３角形を生成
 
 		points[i] = Point(rx*0.95, ry*0.95);
 	}
+
+	doneDelauny = -1;
+	doneVolonoi = -1;
+	*/
+
+	Randomize();
+}
+
+void CVT::InitTriangleVector() {
+	triangles.clear();
+	hugeTriangle = Triangle(Point(0.0, height + width), Point(width + height * 2.0, -height), Point(-width - height * 2.0, -height));
+	addTriangle(hugeTriangle);
 }
 
 void CVT::Randomize() {//isFinishedを初期化している
 	isFinished = false;
-	triangles.clear();
 
+	/*
+	triangles.clear();
 	hugeTriangle = Triangle(Point(0.0, height + width), Point(width + height * 2.0, -height), Point(-width - height * 2.0, -height));
 	addTriangle(hugeTriangle);
+	*/
 
 	for (int i = 0; i < nV; ++i) {
 		float rx = ((float)rand() / RAND_MAX) * width * 2.0 - width;
 		float ry = ((float)rand() / RAND_MAX) * height * 2.0 - height;
 		points[i] = Point(rx * 0.95, ry * 0.95);
 	}
+	doneDelauny = -1;
+	doneVolonoi = -1;
 }
 
 void CVT::DelaunayTrianglaion() {
 
 	int i = 0;
 	for (Point pi : points) {
-		cout << "*** " << i << "  th point processing *********" << endl;
+		//cout << "*** " << i << "  th point processing *********" << endl;
 		int stidx = getTriangleIdxWrapingPoint(pi);
-		cout << "    DT::stidx" <<stidx<<"/ num of tri::"<<triangles.size()<< endl;
-		pi.DBG("    DT::cur Point");
+		//cout << "    DT::stidx" <<stidx<<"/ num of tri::"<<triangles.size()<< endl;
+		//pi.DBG("    DT::cur Point");
 		DivideTriangleAtPoint(stidx, pi);
 
-		cout << "all tri info(cur) " << endl;
-		int id = 0;
-		for (Triangle& t : triangles) { if(t.exist)t.DBG("ti"); id++; }
+		//cout << "all tri info(cur) " << endl;
+		//int id = 0;
+		//for (Triangle& t : triangles) { if(t.exist)t.DBG("ti"); id++; }
 
-		cout << "start Flip" << endl;
+		//cout << "start Flip" << endl;
 		Flip_FromTriangle(triangles[stidx]);
 
 
@@ -345,7 +372,7 @@ vector<Point> CVT::CentroidVoronoi() {//ボロノイ重心を求めていく
 	float change = 0.0f;
 
 	for (int i = 0; i < points.size(); ++i) {
-		cout << "VOLONOI ** " << i << "th points processing" << endl;
+		//cout << "VOLONOI ** " << i << "th points processing" << endl;
 
 		Point pi = points[i];//  i番目の母点
 		Point cent(0.0f, 0.0f);
@@ -356,18 +383,26 @@ vector<Point> CVT::CentroidVoronoi() {//ボロノイ重心を求めていく
 		int n = fixed.size();
 		vector<Triangle> poly;
 		float polyS = 0.0f;
-		for (int j = 0; j < n; ++j) {
-			Point p = triangles[fixed[j]].Outer.center;
-			Point q = triangles[fixed[(j + 1) % n]].Outer.center;
 
-			Triangle tj(pi, p, q);
-			cent = cent + ((pi + p + q) / 3.0) * tj.S;
+		Point p, q;
+		Triangle tj;
+		for (int j = 0; j < n; ++j) {
+			p = triangles[fixed[j]].Outer.center;
+			q = triangles[fixed[(j + 1) % n]].Outer.center;
+
+			tj = Triangle(pi, p, q);
+			cent = cent + ((pi+p+q)/3.0)*tj.S;
 			polyS += tj.S;
 		}
 
-		cent = cent / polyS;//i番目の母点のボロノイ重心
-		ctv[i] = cent;
 
+
+
+		cent = cent / polyS;//i番目の母点のボロノイ重心
+		
+		if (hugeTriangle.isIncluded(cent))ctv[i] = cent;
+		else ctv[i] = points[i];
+		
 		change += pi.Dist(cent);
 	}
 
@@ -376,18 +411,67 @@ vector<Point> CVT::CentroidVoronoi() {//ボロノイ重心を求めていく
 }
 
 
-void CVT::IterStep() {
+void CVT::IterStep() {// step by step 使用作っとく？？
 	/*
 	cout << "all tri info" << endl;
 	int id = 0;
 	for (Triangle& t : triangles) { t.DBG("ti"); id++;}
 	*/
 
+	InitTriangleVector();
 	cout << "CVT::IterStep" << endl;
 	DelaunayTrianglaion();
 	cout << "CVT::Triangulation Done" << endl;
-	//VCpoints = CentroidVoronoi();
-	//cout << "CVT::Centroid calclated" << endl;
-	//AssignCentroid();
-	//cout << "CVT::Centroid assigned (as Point)" << endl;
+	VCpoints = CentroidVoronoi();
+	cout << "CVT::Centroid calclated" << endl;
+	AssignCentroid();
+	cout << "CVT::Centroid assigned (as Point)" << endl;
 }
+
+void CVT::DBG_idx_DelTri(int tgtidx) {//execute whole processing around i th point.
+
+	Point pi = points[tgtidx];
+	//cout << "*** " << tgtidx << "  th point processing *********" << endl;
+	int stidx = getTriangleIdxWrapingPoint(pi);
+	//cout << "    DT::stidx" << stidx << "/ num of tri::" << triangles.size() << endl;
+	pi.DBG("    DT::cur Point");
+	DivideTriangleAtPoint(stidx, pi);
+
+	//cout << "all tri info(cur) " << endl;
+	int id = 0;
+	for (Triangle& t : triangles) { if (t.exist)t.DBG("ti"); id++; }
+
+	//cout << "start Flip" << endl;
+	Flip_FromTriangle(triangles[stidx]);
+
+	doneDelauny = tgtidx;
+
+}
+
+Point CVT::DBG_idx_CentVolo(int tgtidx) {//returns volonoi centroid of i th point.
+	//cout << "VOLONOI ** " << tgtidx << "th points processing" << endl;
+
+	Point pi = points[tgtidx];//  i番目の母点
+	Point cent(0.0f, 0.0f);
+
+	vector<int> IdxAroundp = getALLTriangleIdxSharePoint(pi);
+	vector<int> fixed = FixOrder(IdxAroundp);
+
+	int n = fixed.size();
+	vector<Triangle> poly;
+	float polyS = 0.0f;
+	for (int j = 0; j < n; ++j) {
+		Point p = triangles[fixed[j]].Outer.center;
+		Point q = triangles[fixed[(j + 1) % n]].Outer.center;
+
+		Triangle tj(pi, p, q);
+		cent = cent + ((pi + p + q) / 3.0) * tj.S;
+		polyS += tj.S;
+	}
+
+	cent = cent / polyS;//i番目の母点のボロノイ重心
+	VCpoints[tgtidx] = cent;
+	doneVolonoi = tgtidx;
+	return cent;
+}
+

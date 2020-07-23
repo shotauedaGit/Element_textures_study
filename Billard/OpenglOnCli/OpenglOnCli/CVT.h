@@ -123,9 +123,15 @@ struct Triangle {
 		Outer = getOuterCentroid();
 		S = calcArea();
 
+		/*
 		MyCol[0] = (float)rand() / RAND_MAX;
 		MyCol[1] = (float)rand() / RAND_MAX;
 		MyCol[2] = (float)rand() / RAND_MAX;
+		*/
+		MyCol[0] = 0.1f;
+		MyCol[1] = 0.8f;
+		MyCol[2] = 0.8f;
+
 		MyCol[3] = 0.3f;
 	}
 
@@ -138,7 +144,10 @@ struct Triangle {
 	Point OppositePonit(Edge e);//反対の頂点を返す
 	bool isIncluded(Point p);//この頂点は内包されているか？？
 	bool isIncluded(Edge e);//この辺を含んでいるか？？
+
 	bool isPointShared(Triangle t);//この頂点を含んでいるか？？
+	bool isPointShared(Point p);//この頂点を含んでいるか？？
+
 	bool isEdgeShared(Triangle T);
 
 	bool operator==(Triangle &t);
@@ -182,6 +191,9 @@ struct CVT {
 	vector<Point> points;
 	vector<Point> VCpoints;
 
+	int doneDelauny = -1;
+	int doneVolonoi = -1;
+
 
 	vector<Triangle> triangles; //現存している三角形リスト
 	//vector<bool> TriangleExit; //３角形が追加されたらこいつも
@@ -190,7 +202,7 @@ struct CVT {
 	//unordered_set<Triangle> triangles;
 
 	CVT() {
-		Init(40.0f, 40.0f, 25);
+		Init(60.0f, 60.0f, 150);
 	}
 
 	CVT(float _w, float _h, int _numberOfVertices) {
@@ -209,6 +221,8 @@ struct CVT {
 	void DivideTriangleAtPoint(int Triangleidx,Point p);//(指定したインデックスの)三角形をその点で分割
 	void Flip_FromTriangle(Triangle t);
 
+	void InitTriangleVector();
+
 	void delTriangle(Triangle t);
 	void delTriangle_idx(int idx);//somosomo三角形消してるのはFlipの時だけだった
 	void addTriangle(Triangle t);
@@ -221,7 +235,7 @@ struct CVT {
 	void DelaunayTrianglaion();
 
 	void DBG_idx_DelTri(int tgtIdx);
-	void DBG_idx_CentVolo(int tgtIdx);
+	Point DBG_idx_CentVolo(int tgtIdx);
 
 	vector<int> FixOrder(vector<int> poly);
 	vector<Point> CentroidVoronoi();

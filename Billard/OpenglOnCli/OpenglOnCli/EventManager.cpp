@@ -305,6 +305,9 @@ void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
   ogl->BtnDown_Trans( EVec2i(x,y) );
   ogl->GetCursorRay( EVec2i(x,y), cursor_p, cursor_d);
 
+  if (executeIter)executeIter = false;
+  else executeIter = true;
+
   /*
   int L = 20;
   float mx = 3, mn = 2;
@@ -319,8 +322,19 @@ void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
   */
 
   //if (m_cvt.isFinished == false)m_cvt.Randomize();
-  m_cvt.Randomize();
-  if (m_cvt.isFinished == false)m_cvt.IterStep();
+  //m_cvt.Randomize();
+  //if (m_cvt.isFinished == false)m_cvt.IterStep();
+  /*
+  if (m_cvt.doneDelauny < (m_cvt.nV)-1) {
+      int tgt = m_cvt.doneDelauny;
+      m_cvt.DBG_idx_DelTri(tgt + 1);
+  }
+  else {
+      int tgt = m_cvt.doneVolonoi;
+      m_cvt.DBG_idx_CentVolo(tgt + 1);
+  }
+  */
+
 } 
 
 void EventManager::BtnDownMiddle(int x, int y, OglForCLI *ogl)
@@ -424,8 +438,9 @@ void EventManager::DrawScene()
 
   bool DBG = false;
   
- 
-  for ( auto &it : m_balls ) it.Draw();
+  int lim;
+  //if (m_cvt.doneDelauny <= m_cvt.nV-1)lim = m_cvt.doneDelauny;
+  for (int i = 0; i < m_cvt.nV; ++i) m_balls[i].Draw();
 
   for (int i = 0; i < m_cvt.triangles.size(); ++i) {
       if (m_cvt.triangles[i].exist) {
@@ -531,9 +546,17 @@ void EventManager::Step()
 
   bool DBG = false;
 
+  if (executeIter) {
+      if (m_cvt.isFinished == false)m_cvt.IterStep();
+  }
+  
+  
   for (int i = 0; i < m_cvt.nV; ++i) {
       m_balls[i].SetPos( m_cvt.points[i].x, m_cvt.points[i].y);
   }
+
+
+
 
   //m_cvt.IterStep();
   OpenglOnCli::MainForm_RedrawPanel();
