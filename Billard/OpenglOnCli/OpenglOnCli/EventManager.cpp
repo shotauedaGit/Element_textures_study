@@ -419,8 +419,8 @@ void EventManager::DrawScene()
   glDisable(GL_CULL_FACE );
 
   
-  glLineWidth(1);
-  glBegin(GL_LINES );
+  //glLineWidth(1);
+  glBegin(GL_TRIANGLES);
   glNormal3f(0,1,0);
 
   float w = m_cvt.width;
@@ -428,6 +428,15 @@ void EventManager::DrawScene()
 
   glVertex3f(-w, 0, -h);
   glVertex3f(w, 0, -h);
+  glVertex3f(w, 0, h);
+
+  glVertex3f(w, 0, h);
+  glVertex3f(-w, 0, h);
+  glVertex3f(-w, 0, -h);
+
+  /*
+  glVertex3f(-w, 0, -h);
+  glVertex3f(w, 0, -h);
 
   glVertex3f(w, 0, -h);
   glVertex3f(w, 0, h);
@@ -437,6 +446,7 @@ void EventManager::DrawScene()
 
   glVertex3f(-w, 0, h);
   glVertex3f(-w, 0, -h);
+  */
 
   /*
   glVertex3f(-FLOOR_WIDTH,0, -FLOOR_LENGTH);

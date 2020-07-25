@@ -155,7 +155,7 @@ vector<int> CVT::getALLTriangleIdxSharePoint(Point p) {//exist check ok
 }
 
 vector<int> CVT::FixOrder(vector<int> poly) {//getALLTriangleIdxSharePoint‚Ì‡”Ô‚ğü‰ñ‚·‚é‡‚É•À‚×‘Ö‚¦‚é
-	cout << "fixorder" << endl;
+	//cout << "fixorder" << endl;
 
 	int n = poly.size();
 	vector<bool> isfound(n+10, false);
@@ -182,7 +182,7 @@ vector<int> CVT::FixOrder(vector<int> poly) {//getALLTriangleIdxSharePoint‚Ì‡”Ô
 void CVT::DivideTriangleAtPoint(int Triangleidx, Point p) {
 	if (Triangleidx != -1) {
 		triangles[Triangleidx].exist = false;
-		cout << "delete " << Triangleidx << " th triangle" << endl;
+		//cout << "delete " << Triangleidx << " th triangle" << endl;
 	}
 	else {
 		//DBG
@@ -238,7 +238,7 @@ void CVT::Flip_FromTriangle(Triangle t) {
 		Circle O = T1.Outer;
 
 		if (O.center.Dist(D) < O.r) { //FLIP!!!!!!!!!!
-			cout << "FLIP occured" << endl;
+			//cout << "FLIP occured" << endl;
 
 			delTriangle_idx(idx_T1);
 			delTriangle_idx(idx_T2);
