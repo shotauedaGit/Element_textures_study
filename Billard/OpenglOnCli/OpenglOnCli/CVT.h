@@ -38,6 +38,7 @@ void hash_combine(size_t& seed, T const& v) {
 
 
 struct Point {
+	bool fixed = false;
 	float x = 0.0f, y = 0.0f;
 
 	Point() { x = 0.0f; y = 0.0f; }
@@ -51,6 +52,7 @@ struct Point {
 	Point operator+(const Point& p) { return Point(x + p.x, y + p.y); }
 	Point operator-(const Point& p) { return Point(x - p.x, y - p.y); }
 	Point operator*(double k) { return Point(k * x, k * y); }
+	Point operator*(float k) { return Point(k * x, k * y); }
 	Point operator/(double k) { return Point(x / k, y / k); }
 
 
@@ -183,9 +185,11 @@ struct CVT {
 	Edge errE;
 	Triangle errT;
 
-	int nV = 200;
+	int nV = 10000;
 	float width = 10.0f;
 	float height = 10.0f;
+
+	float wobble = 4.0f;
 
 	Triangle hugeTriangle;
 	vector<Point> points;
@@ -193,6 +197,8 @@ struct CVT {
 
 	int doneDelauny = -1;
 	int doneVolonoi = -1;
+
+	int iterCnt = 1;
 
 
 	vector<Triangle> triangles; //現存している三角形リスト
@@ -202,7 +208,9 @@ struct CVT {
 	//unordered_set<Triangle> triangles;
 
 	CVT() {
-		Init(70.0f, 70.0f, 500);
+		//Init(20.0f, 20.0f, 10);
+		Init(75.0f, 75.0f, 300);
+		//Init(100.0f, 100.0f, 500);
 	}
 
 	CVT(float _w, float _h, int _numberOfVertices) {
@@ -242,5 +250,7 @@ struct CVT {
 
 	void IterStep();
 	void Randomize();
+	
+	void Changelit();
 };
 

@@ -324,16 +324,16 @@ void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
   //if (m_cvt.isFinished == false)m_cvt.Randomize();
   //m_cvt.Randomize();
   //if (m_cvt.isFinished == false)m_cvt.IterStep();
-  /*
-  if (m_cvt.doneDelauny < (m_cvt.nV)-1) {
-      int tgt = m_cvt.doneDelauny;
-      m_cvt.DBG_idx_DelTri(tgt + 1);
-  }
-  else {
-      int tgt = m_cvt.doneVolonoi;
-      m_cvt.DBG_idx_CentVolo(tgt + 1);
-  }
-  */
+  
+  //if (m_cvt.doneDelauny < (m_cvt.nV)-1) {
+  //    int tgt = m_cvt.doneDelauny;
+  //   m_cvt.DBG_idx_DelTri(tgt + 1);
+  //}
+  //else {
+  //    int tgt = m_cvt.doneVolonoi;
+  //    m_cvt.DBG_idx_CentVolo(tgt + 1);
+  //}
+  
 
 } 
 
@@ -401,8 +401,13 @@ void EventManager::DrawScene()
   const static float ambi[4] = { 1.0f, 0.2f, 0, 0.3f };
   const static float spec[4] = { 1,1,1,0.3f };
   const static float shin[1] = { 64.0f };
-  const static float diffG[4] = { 0.0f, 0.8f, 0.8f, 0.3f };
-  const static float ambiG[4] = { 0.0f, 0.8f, 0.8f, 0.3f };
+
+
+  const static float diffG[4] = { 1.0f, 1.0f, 1.0f, 0.3f };
+  const static float ambiG[4] = { 1.0f, 1.0f, 1.0f, 0.3f };
+
+  const static float diffGB[4] = { 0.3f, 0.8f, 0.8f, 0.3f };
+  const static float ambiGB[4] = { 0.3f, 0.8f, 0.8f, 0.3f };
   
   
   glEnable(GL_LIGHTING);
@@ -426,6 +431,7 @@ void EventManager::DrawScene()
   float w = m_cvt.width;
   float h = m_cvt.height;
 
+  /*
   glVertex3f(-w, 0, -h);
   glVertex3f(w, 0, -h);
   glVertex3f(w, 0, h);
@@ -433,6 +439,7 @@ void EventManager::DrawScene()
   glVertex3f(w, 0, h);
   glVertex3f(-w, 0, h);
   glVertex3f(-w, 0, -h);
+  */
 
   /*
   glVertex3f(-w, 0, -h);
@@ -465,10 +472,16 @@ void EventManager::DrawScene()
   glEnd();
 
   bool DBG = false; 
-  bool showDelaunay = false;
+  bool showDelaunay = true;
   
   int lim;
   //if (m_cvt.doneDelauny <= m_cvt.nV-1)lim = m_cvt.doneDelauny;
+
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffGB);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambiGB);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shin);
+
   for (int i = 0; i < m_cvt.nV; ++i) m_balls[i].Draw();
 
   for (int i = 0; i < m_cvt.triangles.size(); ++i) {
@@ -490,7 +503,7 @@ void EventManager::DrawScene()
           glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, ti.MyCol);
           glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ti.MyCol);
           //glColor3f(cR, cG, cB);
-          glLineWidth(2);
+          glLineWidth(1);
           glBegin(GL_LINES);
           glVertex3f(tA.x, 0.1, tA.y);
           glVertex3f(tB.x, 0.1, tB.y);
@@ -589,7 +602,6 @@ void EventManager::Step()
   for (int i = 0; i < m_cvt.nV; ++i) {
       m_balls[i].SetPos(m_cvt.points[i].x, m_cvt.points[i].y);
   }
-
 
   if (DBG)cout << "********Step*********" << endl;
 }

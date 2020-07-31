@@ -290,9 +290,8 @@ void CVT::Init(float w, float h, int n) { //母点の列と巨大３角形を生成
 
 	cout << "CVT::Init" << endl;
 
-	
 	srand(time(NULL));
-	points.resize(nV);
+	//points.resize(nV);
 	VCpoints.resize(nV);
 
 	//ここってRandmize()でいい..................
@@ -322,7 +321,13 @@ void CVT::Init(float w, float h, int n) { //母点の列と巨大３角形を生成
 
 void CVT::InitTriangleVector() {
 	triangles.clear();
-	hugeTriangle = Triangle(Point(0.0, height + width), Point(width + height * 2.0, -height), Point(-width - height * 2.0, -height));
+
+	float margin = 1.8;
+	float h1 = height * margin;
+	float w1 = width * margin;
+	float r3 = 1.7320508f;
+
+	hugeTriangle = Triangle(Point(0.0, h1 + r3*w1), Point(w1 + 0.66f * r3 * h1, -h1), Point(- w1 - 0.66f * r3 * h1, -h1));
 	addTriangle(hugeTriangle);
 }
 
@@ -335,11 +340,47 @@ void CVT::Randomize() {//isFinishedを初期化している
 	addTriangle(hugeTriangle);
 	*/
 
+	points.resize(nV);
 	for (int i = 0; i < nV; ++i) {
 		float rx = ((float)rand() / RAND_MAX) * width * 2.0 - width;
 		float ry = ((float)rand() / RAND_MAX) * height * 2.0 - height;
 		points[i] = Point(rx * 0.95, ry * 0.95);
 	}
+
+	float l = -width * 1.1f;
+	float r = width * 1.1f;
+	float u = height * 1.1f;
+	float d = -height * 1.1f;
+
+	float division = 16;
+	float step = 2*r/division;
+
+	for (float px = l, py = d + step; py < u; py += step) {
+		Point pfix = Point(px, py); pfix.fixed = true;
+		points.push_back(pfix);
+	}
+
+
+	for (float px = l, py = u; px < r; px += step) {
+		Point pfix = Point(px, py); pfix.fixed = true;
+		points.push_back(pfix);
+	}
+
+	for (float px = r, py = u; py > d; py -= step) {
+		Point pfix = Point(px, py); pfix.fixed = true;
+		points.push_back(pfix);
+	}
+
+	for (float px = r, py = d; px >= l; px -= step) {
+		Point pfix = Point(px, py); pfix.fixed = true;
+		points.push_back(pfix);
+	}
+
+	
+
+	
+	
+
 	doneDelauny = -1;
 	doneVolonoi = -1;
 }
@@ -348,6 +389,9 @@ void CVT::DelaunayTrianglaion() {
 
 	int i = 0;
 	for (Point pi : points) {
+
+		//pi.DBG("point : " + to_string(i));
+
 		//cout << "*** " << i << "  th point processing *********" << endl;
 		int stidx = getTriangleIdxWrapingPoint(pi);
 		//cout << "    DT::stidx" <<stidx<<"/ num of tri::"<<triangles.size()<< endl;
@@ -360,8 +404,6 @@ void CVT::DelaunayTrianglaion() {
 
 		//cout << "start Flip" << endl;
 		Flip_FromTriangle(triangles[stidx]);
-
-
 		++i;
 	}
 }
@@ -372,9 +414,12 @@ vector<Point> CVT::CentroidVoronoi() {//ボロノイ重心を求めていく
 	float change = 0.0f;
 
 	for (int i = 0; i < points.size(); ++i) {
+
 		//cout << "VOLONOI ** " << i << "th points processing" << endl;
 
 		Point pi = points[i];//  i番目の母点
+		if (pi.fixed == true)continue;
+
 		Point cent(0.0f, 0.0f);
 
 		vector<int> IdxAroundp = getALLTriangleIdxSharePoint(pi);
@@ -399,6 +444,15 @@ vector<Point> CVT::CentroidVoronoi() {//ボロノイ重心を求めていく
 
 
 		cent = cent / polyS;//i番目の母点のボロノイ重心
+
+
+		float l = -width * 1.3f;
+		float r = width * 1.3f;
+		float u = height * 1.3f;
+		float d = -height * 1.3f;
+
+		//if(l <= cent.x  && cent.x <= r && d <= cent.y && cent.y <= u)ctv[i] = cent;
+		//else ctv[i] = points[i];
 		
 		if (hugeTriangle.isIncluded(cent))ctv[i] = cent;
 		else ctv[i] = points[i];
@@ -418,15 +472,42 @@ void CVT::IterStep() {// step by step 使用作っとく？？
 	for (Triangle& t : triangles) { t.DBG("ti"); id++;}
 	*/
 
+	//if (iterCnt % 15 == 0)Changelit();
+
 	InitTriangleVector();
-	cout << "CVT::IterStep" << endl;
+	//cout << "CVT::IterStep" << endl;
 	DelaunayTrianglaion();
-	cout << "CVT::Triangulation Done" << endl;
+	//cout << "CVT::Triangulation Done" << endl;
 	VCpoints = CentroidVoronoi();
-	cout << "CVT::Centroid calclated" << endl;
+	//cout << "CVT::Centroid calclated" << endl;
 	AssignCentroid();
-	cout << "CVT::Centroid assigned (as Point)" << endl;
+	//cout << "CVT::Centroid assigned (as Point)" << endl;
+
+	++iterCnt;
 }
+
+void CVT::Changelit() {
+
+
+	int st = rand() % 3;
+
+	for (int i = st; i < nV; i+=3) {
+		
+		Point pi = points[i];
+		float ddx = ((float)rand() / RAND_MAX)*wobble * 2.0f - wobble;
+		float ddy = ((float)rand() / RAND_MAX)*wobble * 2.0f - wobble;
+		while (hugeTriangle.isIncluded(pi + Point(ddx, ddy)) == false) {
+			ddx = ((float)rand() / RAND_MAX)*wobble * 2.0f - wobble;
+			ddy = ((float)rand() / RAND_MAX)*wobble * 2.0f - wobble;
+		}
+		//((pi+Point(ddx, ddy)) - points[i]).DBG("d_"+to_string(i));
+
+		points[i].x += ddx;
+		points[i].y += ddy;
+		
+	}
+}
+
 
 void CVT::DBG_idx_DelTri(int tgtidx) {//execute whole processing around i th point.
 
