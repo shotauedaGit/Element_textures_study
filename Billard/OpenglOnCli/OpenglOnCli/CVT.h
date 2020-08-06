@@ -189,6 +189,9 @@ struct CVT {
 	float width = 10.0f;
 	float height = 10.0f;
 
+	float barrierWidth;
+	float barrierHeight;
+
 	float wobble = 4.0f;
 
 	Triangle hugeTriangle;
@@ -209,8 +212,11 @@ struct CVT {
 
 	CVT() {
 		//Init(20.0f, 20.0f, 10);
-		Init(75.0f, 75.0f, 300);
-		//Init(100.0f, 100.0f, 500);
+		//Init(60.0f, 60.0f, 200);
+		//Init(85.0f, 85.0f, 350);
+		Init(100.0f, 100.0f, 500);
+		//Init(120.0f, 120.0f, 750);
+		//Init(145.0f, 145.0f, 1000);
 	}
 
 	CVT(float _w, float _h, int _numberOfVertices) {

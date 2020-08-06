@@ -339,12 +339,13 @@ void CVT::Randomize() {//isFinishedを初期化している
 	hugeTriangle = Triangle(Point(0.0, height + width), Point(width + height * 2.0, -height), Point(-width - height * 2.0, -height));
 	addTriangle(hugeTriangle);
 	*/
+	float range = 0.94;
 
 	points.resize(nV);
 	for (int i = 0; i < nV; ++i) {
 		float rx = ((float)rand() / RAND_MAX) * width * 2.0 - width;
 		float ry = ((float)rand() / RAND_MAX) * height * 2.0 - height;
-		points[i] = Point(rx * 0.95, ry * 0.95);
+		points[i] = Point(rx * range, ry * range);
 	}
 
 	float l = -width * 1.1f;
@@ -352,7 +353,10 @@ void CVT::Randomize() {//isFinishedを初期化している
 	float u = height * 1.1f;
 	float d = -height * 1.1f;
 
-	float division = 16;
+	barrierWidth = r;
+	barrierHeight = u;
+
+	float division = 8;
 	float step = 2*r/division;
 
 	for (float px = l, py = d + step; py < u; py += step) {
@@ -375,10 +379,6 @@ void CVT::Randomize() {//isFinishedを初期化している
 		Point pfix = Point(px, py); pfix.fixed = true;
 		points.push_back(pfix);
 	}
-
-	
-
-	
 	
 
 	doneDelauny = -1;
@@ -393,7 +393,7 @@ void CVT::DelaunayTrianglaion() {
 		//pi.DBG("point : " + to_string(i));
 
 		//cout << "*** " << i << "  th point processing *********" << endl;
-		int stidx = getTriangleIdxWrapingPoint(pi);
+		int stidx = getTriangleIdxWrapingPoint(pi);// いまはO(N) //最近
 		//cout << "    DT::stidx" <<stidx<<"/ num of tri::"<<triangles.size()<< endl;
 		//pi.DBG("    DT::cur Point");
 		DivideTriangleAtPoint(stidx, pi);
@@ -440,24 +440,15 @@ vector<Point> CVT::CentroidVoronoi() {//ボロノイ重心を求めていく
 			polyS += tj.S;
 		}
 
-
-
-
 		cent = cent / polyS;//i番目の母点のボロノイ重心
 
-
-		float l = -width * 1.3f;
-		float r = width * 1.3f;
-		float u = height * 1.3f;
-		float d = -height * 1.3f;
-
-		//if(l <= cent.x  && cent.x <= r && d <= cent.y && cent.y <= u)ctv[i] = cent;
-		//else ctv[i] = points[i];
-		
-		if (hugeTriangle.isIncluded(cent))ctv[i] = cent;
+		if(-barrierWidth <= cent.x  && cent.x <= barrierWidth && -barrierHeight <= cent.y && cent.y <= barrierHeight)ctv[i] = cent;
 		else ctv[i] = points[i];
 		
-		change += pi.Dist(cent);
+		//if (hugeTriangle.isIncluded(cent))ctv[i] = cent;
+		//else ctv[i] = points[i];
+		
+		change += pi.Dist(ctv[i]);
 	}
 
 	if (change < eps * nV)isFinished = true;

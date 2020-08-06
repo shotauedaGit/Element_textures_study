@@ -423,6 +423,9 @@ void EventManager::DrawScene()
   glEnable( GL_CULL_FACE );
   glDisable(GL_CULL_FACE );
 
+  glEnable(GL_DEPTH_TEST);
+
+
   
   //glLineWidth(1);
   glBegin(GL_TRIANGLES);
@@ -472,7 +475,8 @@ void EventManager::DrawScene()
   glEnd();
 
   bool DBG = false; 
-  bool showDelaunay = true;
+  bool showDelaunay = false;
+  showDelaunay = true;
   
   int lim;
   //if (m_cvt.doneDelauny <= m_cvt.nV-1)lim = m_cvt.doneDelauny;
@@ -484,39 +488,41 @@ void EventManager::DrawScene()
 
   for (int i = 0; i < m_cvt.nV; ++i) m_balls[i].Draw();
 
-  for (int i = 0; i < m_cvt.triangles.size(); ++i) {
-      if (m_cvt.triangles[i].exist && showDelaunay) {
-          Triangle ti = m_cvt.triangles[i];
+  if (showDelaunay) {
+      for (int i = 0; i < m_cvt.triangles.size(); ++i) {
+          if (m_cvt.triangles[i].exist) {
+              Triangle ti = m_cvt.triangles[i];
 
-          if(DBG)cout << "GRAW " << i << " th triangle" << endl;
+              if (DBG)cout << "GRAW " << i << " th triangle" << endl;
 
-          Point tA = ti.A; EVec3f vA(tA.x, 0.1, tA.y);
-          Point tB = ti.B; EVec3f vB(tB.x, 0.1, tB.y);
-          Point tC = ti.C; EVec3f vC(tC.x, 0.1, tC.y);
-          /*
-          float cR = (float)rand() / RAND_MAX;
-          float cG = (float)rand() / RAND_MAX;
-          float cB = (float)rand() / RAND_MAX;
-          
-          */
+              Point tA = ti.A; EVec3f vA(tA.x, 0.1, tA.y);
+              Point tB = ti.B; EVec3f vB(tB.x, 0.1, tB.y);
+              Point tC = ti.C; EVec3f vC(tC.x, 0.1, tC.y);
+              /*
+              float cR = (float)rand() / RAND_MAX;
+              float cG = (float)rand() / RAND_MAX;
+              float cB = (float)rand() / RAND_MAX;
 
-          glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, ti.MyCol);
-          glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ti.MyCol);
-          //glColor3f(cR, cG, cB);
-          glLineWidth(1);
-          glBegin(GL_LINES);
-          glVertex3f(tA.x, 0.1, tA.y);
-          glVertex3f(tB.x, 0.1, tB.y);
-          glEnd();
-          glBegin(GL_LINES);
-          glVertex3f(tB.x, 0.1, tB.y);
-          glVertex3f(tC.x, 0.1, tC.y);
-          glEnd();
-          glBegin(GL_LINES);
-          glVertex3f(tC.x, 0.1, tC.y);
-          glVertex3f(tA.x, 0.1, tA.y);
-          glEnd();
-          
+              */
+
+              glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, ti.MyCol);
+              glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ti.MyCol);
+              //glColor3f(cR, cG, cB);
+              glLineWidth(1);
+              glBegin(GL_LINES);
+              glVertex3f(tA.x, 0.1, tA.y);
+              glVertex3f(tB.x, 0.1, tB.y);
+              glEnd();
+              glBegin(GL_LINES);
+              glVertex3f(tB.x, 0.1, tB.y);
+              glVertex3f(tC.x, 0.1, tC.y);
+              glEnd();
+              glBegin(GL_LINES);
+              glVertex3f(tC.x, 0.1, tC.y);
+              glVertex3f(tA.x, 0.1, tA.y);
+              glEnd();
+
+          }
       }
   }
 
