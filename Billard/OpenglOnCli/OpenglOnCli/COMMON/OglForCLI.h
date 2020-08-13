@@ -154,7 +154,7 @@ public:
   {
     if (dc == 0) return;
 
-    m_camera.m_pos = EVec3f(0, 180, 300);
+    m_camera.m_pos = EVec3f(0, 250, 1 );
     m_camera.m_cnt = EVec3f(0, 0, 0 );
     m_camera.m_up  = EVec3f(0, 1, 0 );
     m_background_color = EVec4f(0, 0, 0, 0.5);

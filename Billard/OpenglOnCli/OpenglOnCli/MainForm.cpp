@@ -43,6 +43,7 @@ static void CALLBACK MyTimerProc(
 
 MainForm::MainForm(void)
 {
+  cout << "MainForm::Constluctor" << endl;
   m_ogl = 0;
   InitializeComponent();
   m_ogl = new OglForCLI(GetDC((HWND)m_main_panel->Handle.ToPointer()));
@@ -93,6 +94,10 @@ System::Void MainForm::m_main_panel_Resize(System::Object^  sender, System::Even
 System::Void MainForm::MainForm_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e)
 {
   std::cout << (int) e->KeyCode << "\n";
+  int key = (int)e->KeyCode;
+
+  if (key == 49)EventManager::GetInst()->KeyDown_1(m_ogl);
+  else if(key == 50)EventManager::GetInst()->KeyDown_2(m_ogl);
 }
 
 

@@ -16,7 +16,6 @@ using namespace OpenglOnCli;
 int main()
 {
   std::cout << "hello, world\n"; 
-
   MainForm::GetInst()->ShowDialog();  
   return 0;
 }

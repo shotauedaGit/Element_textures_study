@@ -123,7 +123,7 @@ void SolidBall::Draw( )
   glPushMatrix();
   glTranslatef( m_position[0], m_position[1], m_position[2] );
   //glMultiMat3d(m.data());
-  DrawSphere(  16, 16, m_radius );
+  DrawSphere(  10, 10, m_radius );
   glPopMatrix();
 }
 
@@ -281,6 +281,12 @@ EventManager::EventManager()
   ////a1 == 1, a2 == 10, a3 == 10 
   //  
   m_btn_right = m_btn_left = m_btn_middle = false;
+
+  //m_balls.resize(m_cvt.nV);
+  float Radius = 3.0f;
+  for (int i = 0; i < m_cvt.nV; ++i) {
+      m_balls.push_back(SolidBall(EVec3f(0, 0, 0), Radius));
+  }
 }
 
 
@@ -295,22 +301,42 @@ EventManager::EventManager()
 static EVec3f cursor_p, cursor_d;
 void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
 {
+    if (pastkey == 49)return;
+
   m_btn_left = true;
   ogl->BtnDown_Trans( EVec2i(x,y) );
-  
   ogl->GetCursorRay( EVec2i(x,y), cursor_p, cursor_d);
-  
-  float L = 45.0f;
+
+  if (executeIter)executeIter = false;
+  else executeIter = true;
+
+  /*
+  int L = 20;
   float mx = 3, mn = 2;
-  for (int i = 0; i < 400; ++i) {
-      //float px = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
-      float px = (((float)rand() / RAND_MAX) * 2 * L) - L;
-      //float pz = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
-      float pz = (((float)rand() / RAND_MAX) * 2 * L) - L;
+  for (int i = 0; i < 70; ++i) {
+      float px = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
+      float pz = ((rand() % (2 * L * 100)) / 100.0) - 10.0;
       float R = ((rand() % 100) / 100.0) * (mx - mn) + mn;
       m_balls.push_back(SolidBall(EVec3f(px, 0, pz), R)); //ボールを新たに発生させる
       std::cout << "  px:" << px << "  pz:" << pz << std::endl;
   }
+
+  */
+
+  //if (m_cvt.isFinished == false)m_cvt.Randomize();
+  //m_cvt.Randomize();
+  //if (m_cvt.isFinished == false)m_cvt.IterStep();
+  
+  //if (m_cvt.doneDelauny < (m_cvt.nV)-1) {
+  //    int tgt = m_cvt.doneDelauny;
+  //   m_cvt.DBG_idx_DelTri(tgt + 1);
+  //}
+  //else {
+  //    int tgt = m_cvt.doneVolonoi;
+  //    m_cvt.DBG_idx_CentVolo(tgt + 1);
+  //}
+  
+
 } 
 
 void EventManager::BtnDownMiddle(int x, int y, OglForCLI *ogl)
@@ -331,6 +357,8 @@ void EventManager::BtnUpLeft  (int x, int y, OglForCLI *ogl)
 {
   m_btn_left = false;
   ogl->BtnUp();
+
+  //if (m_cvt.isFinished == false)m_cvt.Randomize();
 }
 
 void EventManager::BtnUpMiddle(int x, int y, OglForCLI *ogl)
@@ -352,6 +380,21 @@ void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
 }
 
 
+void EventManager::KeyDown_1(OglForCLI* ogl) {
+    if (pastkey == 49)return;
+
+    m_cvt.InitTriangleVector();
+    m_cvt.DelaunayTrianglaion();
+    pastkey = 49;
+}
+
+void EventManager::KeyDown_2(OglForCLI* ogl) {
+    if (pastkey == 50)return;
+
+    m_cvt.VCpoints = m_cvt.CentroidVoronoi();
+    m_cvt.AssignCentroid();
+    pastkey = 50;
+}
 
 
 
@@ -360,22 +403,29 @@ void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
 
 void EventManager::DrawScene()
 {
-  static int FrameCnt = 0;
-  int WatiFrame = 200;
-
   //ここにレンダリングルーチンを書く
+
+  /*
   glBegin(GL_LINES );
   glColor3d(1,0,0); glVertex3d(0,0,0); glVertex3d(10,0,0);
   glColor3d(0,1,0); glVertex3d(0,0,0); glVertex3d(0,10,0);
   glColor3d(0,0,1); glVertex3d(0,0,0); glVertex3d(0,0,10);
   glEnd();
+  */
+
  
   const static float diff[4] = { 1.0f, 0.2f, 0, 0.3f };
   const static float ambi[4] = { 1.0f, 0.2f, 0, 0.3f };
   const static float spec[4] = { 1,1,1,0.3f };
   const static float shin[1] = { 64.0f };
-  const static float diffG[4] = { 0.0f, 0.8f, 0.8f, 0.3f };
-  const static float ambiG[4] = { 0.0f, 0.8f, 0.8f, 0.3f };
+
+
+  const static float diffG[4] = { 1.0f, 1.0f, 1.0f, 0.3f };
+  const static float ambiG[4] = { 1.0f, 1.0f, 1.0f, 0.3f };
+
+  const static float diffGB[4] = { 0.3f, 0.8f, 0.8f, 0.3f };
+  const static float ambiGB[4] = { 0.3f, 0.8f, 0.8f, 0.3f };
+  
   
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
@@ -389,19 +439,111 @@ void EventManager::DrawScene()
   //render floor 
   glEnable( GL_CULL_FACE );
   glDisable(GL_CULL_FACE );
-  glBegin(GL_TRIANGLES );
+
+  glEnable(GL_DEPTH_TEST);
+
+
+  
+  //glLineWidth(1);
+  glBegin(GL_TRIANGLES);
   glNormal3f(0,1,0);
+
+  float w = m_cvt.width;
+  float h = m_cvt.height;
+
+  /*
+  glVertex3f(-w, 0, -h);
+  glVertex3f(w, 0, -h);
+  glVertex3f(w, 0, h);
+
+  glVertex3f(w, 0, h);
+  glVertex3f(-w, 0, h);
+  glVertex3f(-w, 0, -h);
+  */
+
+  /*
+  glVertex3f(-w, 0, -h);
+  glVertex3f(w, 0, -h);
+
+  glVertex3f(w, 0, -h);
+  glVertex3f(w, 0, h);
+
+  glVertex3f(w, 0, h);
+  glVertex3f(-w, 0, h);
+
+  glVertex3f(-w, 0, h);
+  glVertex3f(-w, 0, -h);
+  */
+
+  /*
   glVertex3f(-FLOOR_WIDTH,0, -FLOOR_LENGTH);
+  glVertex3f( FLOOR_WIDTH,0, -FLOOR_LENGTH);
+
   glVertex3f( FLOOR_WIDTH,0, -FLOOR_LENGTH);
   glVertex3f( FLOOR_WIDTH,0, FLOOR_LENGTH);
 
-  glVertex3f(-FLOOR_WIDTH, 0, -FLOOR_LENGTH);
   glVertex3f( FLOOR_WIDTH, 0, FLOOR_LENGTH);
   glVertex3f(-FLOOR_WIDTH, 0, FLOOR_LENGTH);
+
+  glVertex3f(-FLOOR_WIDTH, 0, FLOOR_LENGTH);
+  glVertex3f(-FLOOR_WIDTH,0, -FLOOR_LENGTH);
+  */
+
   glEnd();
+
+  bool DBG = false; 
+  bool showDelaunay = false;
+  showDelaunay = true;
   
-  FrameCnt++;
-  if(FrameCnt >= WatiFrame)for ( auto &it : m_balls ) it.Draw();
+  int lim;
+  //if (m_cvt.doneDelauny <= m_cvt.nV-1)lim = m_cvt.doneDelauny;
+
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffGB);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambiGB);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shin);
+
+  for (int i = 0; i < m_cvt.nV; ++i) m_balls[i].Draw();
+
+  if (showDelaunay) {
+      for (int i = 0; i < m_cvt.triangles.size(); ++i) {
+          if (m_cvt.triangles[i].exist) {
+              Triangle ti = m_cvt.triangles[i];
+
+              if (DBG)cout << "GRAW " << i << " th triangle" << endl;
+
+              Point tA = ti.A; EVec3f vA(tA.x, 0.1, tA.y);
+              Point tB = ti.B; EVec3f vB(tB.x, 0.1, tB.y);
+              Point tC = ti.C; EVec3f vC(tC.x, 0.1, tC.y);
+              /*
+              float cR = (float)rand() / RAND_MAX;
+              float cG = (float)rand() / RAND_MAX;
+              float cB = (float)rand() / RAND_MAX;
+
+              */
+
+              glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, ti.MyCol);
+              glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ti.MyCol);
+              //glColor3f(cR, cG, cB);
+              glLineWidth(1);
+              glBegin(GL_LINES);
+              glVertex3f(tA.x, 0.1, tA.y);
+              glVertex3f(tB.x, 0.1, tB.y);
+              glEnd();
+              glBegin(GL_LINES);
+              glVertex3f(tB.x, 0.1, tB.y);
+              glVertex3f(tC.x, 0.1, tC.y);
+              glEnd();
+              glBegin(GL_LINES);
+              glVertex3f(tC.x, 0.1, tC.y);
+              glVertex3f(tA.x, 0.1, tA.y);
+              glEnd();
+
+          }
+      }
+  }
+
+  if (DBG)cout << "********Draw*********" << endl;
 
   /*
   glLineWidth(10);
@@ -409,9 +551,9 @@ void EventManager::DrawScene()
   EVec3f tmp = cursor_p + 100*cursor_d;
   glVertex3fv ( cursor_p.data() );
   glVertex3fv ( tmp.data() );
+  glEnd();
   */
 
-  glEnd();
 }
 
 
@@ -421,16 +563,17 @@ void EventManager::Step()
 {
   //todo処理
   //std::cout << "step";
+  /*
 
   for ( auto &it : m_balls ) 
   {
-    it.Step( 0.02 );
+    it.Step( 0.01 );
     //移動計算 OK
     //回転も TODO 井尻
   }
 
   //球の重なり具合から、球の速度を求める
-  float eps = 0.05f, vb = 0.5f;
+  float eps = 0.3f;
   for (auto &ball : m_balls)ball.SetVelo(EVec3f(0, 0, 0));
   for ( int i=0; i < (int)m_balls.size(); ++i )
   {
@@ -443,7 +586,7 @@ void EventManager::Step()
       float rj = m_balls[i].GetR();
 
       float Dist_i2j = f.norm();
-      float k = (ri + rj)*1.2f - Dist_i2j;
+      float k = (ri + rj) - Dist_i2j;
       
       EVec3f nvi = m_balls[i].GetVel();
       EVec3f nvj = m_balls[j].GetVel();
@@ -457,13 +600,6 @@ void EventManager::Step()
       m_balls[j].SetVelo(nvj);
     }
 
-    /*
-    if (m_balls[i].GetVel().norm() > vb) {
-        EVec3f v = m_balls[i].GetVel();
-        m_balls[i].SetVelo(v * 1.5f);
-    }
-    */
-
     //std::min()
   }
   for (auto& ball : m_balls) {
@@ -471,5 +607,24 @@ void EventManager::Step()
       float n2 = ball.GetVel().norm()/(0.6f);
       //ball.SetVelo(ball.GetVel());
   }
+  */
+
+
+
+
+
+
+  //m_cvt.IterStep();
   OpenglOnCli::MainForm_RedrawPanel();
+  bool DBG = false;
+
+  if (executeIter) {
+      if (m_cvt.isFinished == false)m_cvt.IterStep();
+  }
+
+  for (int i = 0; i < m_cvt.nV; ++i) {
+      m_balls[i].SetPos(m_cvt.points[i].x, m_cvt.points[i].y);
+  }
+
+  if (DBG)cout << "********Step*********" << endl;
 }
