@@ -123,7 +123,7 @@ void SolidBall::Draw( )
   glPushMatrix();
   glTranslatef( m_position[0], m_position[1], m_position[2] );
   //glMultiMat3d(m.data());
-  DrawSphere(  12, 12, m_radius );
+  DrawSphere(  10, 10, m_radius );
   glPopMatrix();
 }
 
@@ -301,6 +301,8 @@ EventManager::EventManager()
 static EVec3f cursor_p, cursor_d;
 void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
 {
+    if (pastkey == 49)return;
+
   m_btn_left = true;
   ogl->BtnDown_Trans( EVec2i(x,y) );
   ogl->GetCursorRay( EVec2i(x,y), cursor_p, cursor_d);
@@ -378,6 +380,21 @@ void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
 }
 
 
+void EventManager::KeyDown_1(OglForCLI* ogl) {
+    if (pastkey == 49)return;
+
+    m_cvt.InitTriangleVector();
+    m_cvt.DelaunayTrianglaion();
+    pastkey = 49;
+}
+
+void EventManager::KeyDown_2(OglForCLI* ogl) {
+    if (pastkey == 50)return;
+
+    m_cvt.VCpoints = m_cvt.CentroidVoronoi();
+    m_cvt.AssignCentroid();
+    pastkey = 50;
+}
 
 
 

@@ -71,6 +71,7 @@ private:
 public: 
 
   bool executeIter = false;
+  int pastkey = 50;
 
   static EventManager* GetInst(){
     static EventManager p;
@@ -85,6 +86,10 @@ public:
   void BtnUpMiddle  (int x, int y, OglForCLI *ogl);
   void BtnUpRight   (int x, int y, OglForCLI *ogl);
   void MouseMove    (int x, int y, OglForCLI *ogl);
+
+  void KeyDown_1(OglForCLI* ogl);
+  void KeyDown_2(OglForCLI* ogl);
+
   void DrawScene();//再描画、収束するまで描画しないっていう指定もしたい
   void Step();//１フレームごとの処理(収束するまではイテレーション、そうでないときは何もしない)
 
