@@ -164,6 +164,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="CVT_v2.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="MainForm.h">
       <FileType>CppForm</FileType>
@@ -180,6 +181,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="CVT_v2.cpp" />
     <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="MainForm.cpp" />
     <ClCompile Include="OpenglOnCli.cpp" />
