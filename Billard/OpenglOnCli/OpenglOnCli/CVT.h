@@ -130,9 +130,9 @@ struct Triangle {
 		MyCol[1] = (float)rand() / RAND_MAX;
 		MyCol[2] = (float)rand() / RAND_MAX;
 		*/
-		MyCol[0] = 0.1f;
-		MyCol[1] = 0.8f;
-		MyCol[2] = 0.8f;
+		MyCol[0] = 0.8f;
+		MyCol[1] = 0.3f;
+		MyCol[2] = 0.1f;
 
 		MyCol[3] = 0.3f;
 	}

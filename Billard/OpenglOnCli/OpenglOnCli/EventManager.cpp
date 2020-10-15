@@ -1,6 +1,8 @@
 #include "stdafx.h"
 
 #include "COMMON\tmath.h"
+#include "COMMON\timageloader.h"
+
 #include "COMMON\stdc++.h"
 #include <cmath>
 #include "MainForm.h"
@@ -128,6 +130,7 @@ void SolidBall::Draw( )
 }
 
 
+/*
 //.h
 class MyVec3
 {
@@ -218,76 +221,13 @@ void func( int a, int &b, int *c )
   if( c != 0) *c = 10;
 }
 
+*/
 
 
 
 
 
 
-EventManager::EventManager()
-{
-  std::cout << "EventManager constructor\n";
-  //
-  //MyVec3 v1(1,2,3), v2(3,4,5);
-  //v1.Trace();
-  //v2.Trace();
-  //MyVec3 v3 = v1 + v2; //オペレータオーバーロード
-  //v3.Trace();
-  //v3.Trace(1);
-  //
-  ////v1.m_priv = 10; 無理
-  // 
-  //v1.StaticFunc();
-  //MyVec3::StaticFunc();
-
-  ////MyVec3 p(1,2,3);
-  ////MyVec3 q(1,2,3);
-  ////auto a = p + q;
-  ////p.Trace();
-  ////q.Trace();
-  ////a.Trace();
-  //
-  ////スコープ
-  //{
-  //  float a = 10;
-  //  MyVec3 *aaa = new MyVec3();
- 
-  //  delete aaa;
-  //}
-  //
-  //std::vector<int> array_int;
-  //array_int.push_back(1);
-  //array_int.push_back(2);
-  //array_int.push_back(3);
-  //array_int.push_back(0);
-  //array_int.push_back(13);
-  //array_int.push_back(11);
-  //array_int.push_back(10);
-  //
-  //std::list<int> list_int;
-  //list_int.push_back(1);
-  //list_int.push_back(10);
-  //list_int.push_back(122);
-  //list_int.push_back(133);
-  //list_int.push_back(144);
-  //list_int.push_back(155);
-  //list_int.push_back(1);
-  //
-  //array_int[4];
-  //list_int.pop_front();
-
-  //int a1 =1, a2 = 1, a3 = 1;
-  //func(a1,a2,&a3);
-  ////a1 == 1, a2 == 10, a3 == 10 
-  //  
-  m_btn_right = m_btn_left = m_btn_middle = false;
-
-  //m_balls.resize(m_cvt.nV);
-  float Radius = 3.0f;
-  for (int i = 0; i < m_cvt.nV; ++i) {
-      m_balls.push_back(SolidBall(EVec3f(0, 0, 0), Radius));
-  }
-}
 
 
 
@@ -415,33 +355,36 @@ void EventManager::DrawScene()
 
  
   const static float diff[4] = { 1.0f, 0.2f, 0, 0.3f };
-  const static float ambi[4] = { 1.0f, 0.2f, 0, 0.3f };
-  const static float spec[4] = { 1,1,1,0.3f };
+  const static float ambi[4] = { 1.0f, 0.2f, 0, 1.0f };
+  const static float spec[4] = { 0, 0, 0, 0.3f };
   const static float shin[1] = { 64.0f };
 
 
-  const static float diffG[4] = { 1.0f, 1.0f, 1.0f, 0.3f };
-  const static float ambiG[4] = { 1.0f, 1.0f, 1.0f, 0.3f };
+  const static float diffG[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+  const static float ambiG[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-  const static float diffGB[4] = { 0.3f, 0.8f, 0.8f, 0.3f };
-  const static float ambiGB[4] = { 0.3f, 0.8f, 0.8f, 0.3f };
+  const static float diffGB[4] = { 0.5f, 0.9f, 0.9f, 1.0f };
+  const static float ambiGB[4] = { 0.3f, 0.8f, 0.8f, 1.0f };
   
-  
+  //*
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
-  glEnable(GL_LIGHT1);
-  glEnable(GL_LIGHT2);
+  //glEnable(GL_LIGHT1);
+  //glEnable(GL_LIGHT2);
+  //*/
+
+  //*
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR , spec);
   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE  , diffG);
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT  , ambiG);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shin);
-  
+  //*/
+
   //render floor 
   glEnable( GL_CULL_FACE );
   glDisable(GL_CULL_FACE );
 
-  glEnable(GL_DEPTH_TEST);
-
+  
 
   
   //glLineWidth(1);
@@ -493,17 +436,79 @@ void EventManager::DrawScene()
 
   bool DBG = false; 
   bool showDelaunay = false;
-  showDelaunay = true;
+  //showDelaunay = true;
   
   int lim;
   //if (m_cvt.doneDelauny <= m_cvt.nV-1)lim = m_cvt.doneDelauny;
 
+  //* //****************************  質感設定??  *************************************
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffGB);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambiGB);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffG);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambiG);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shin);
+  //*/
 
-  for (int i = 0; i < m_cvt.nV; ++i) m_balls[i].Draw();
+
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, txHdl);
+
+  //for (int i = 0; i < m_cvt.nV; ++i) m_balls[i].Draw();//*******************  SolidXXXX 描画完了  **********************
+  for (int i = 0; i < m_cvt.nV; ++i) m_elements[i].Draw();//*******************  SolidXXXX 描画完了  **********************
+
+
+  {
+      /*
+      glPushMatrix();
+      glTranslatef(0,0,0);
+      glRotatef(90,0,0,1);
+      //Draw Rect
+      float H = 50.0;
+      float W = 50.0;
+
+      {
+          //GLuint image = loadBMP_custom("./aaa.bmp");
+
+
+          glBegin(GL_TRIANGLES);
+          // front
+          // triangle 0
+          //glNormal3f(0.0f, 0.0f, 1.0f); 
+          glTexCoord2f(0.0f, 1.0f);
+          glVertex3f(-H / 2, 0.0f, -W / 2);
+
+          //glNormal3f(0.0f, 0.0f, 1.0f); 
+          glTexCoord2f(0.0f, 0.0f);
+          glVertex3f(H / 2, 0.0f, -W / 2);
+          //glNormal3f(0.0f, 0.0f, 1.0f); 
+          glTexCoord2f(1.0f, 1.0f);
+          glVertex3f(-H / 2, 0.0f, W / 2);
+
+          // triangle 1
+          //glNormal3f(0.0f, 0.0f, 1.0f); 
+          glTexCoord2f(0.0f, 0.0f);
+          glVertex3f(H / 2, 0.0f, -W / 2);
+          //glNormal3f(0.0f, 0.0f, 1.0f); 
+          glTexCoord2f(1.0f, 1.0f);
+          glVertex3f(-H / 2, 0.0f, W / 2);
+
+
+          //glNormal3f(0.0f, 0.0f, 1.0f); 
+
+          glTexCoord2f(1.0f, 0.0f);
+          glVertex3f(H / 2, 0.0f, W / 2);
+
+          glEnd();
+      }
+
+      //
+      glPopMatrix();
+
+      */
+  
+  }
+  glDisable(GL_TEXTURE_2D);
+
+
 
   if (showDelaunay) {
       for (int i = 0; i < m_cvt.triangles.size(); ++i) {
@@ -623,7 +628,8 @@ void EventManager::Step()
   }
 
   for (int i = 0; i < m_cvt.nV; ++i) {
-      m_balls[i].SetPos(m_cvt.points[i].x, m_cvt.points[i].y);
+      //m_balls[i].SetPos(m_cvt.points[i].x, m_cvt.points[i].y); //******************************  要素の位置更新  **********************
+      m_elements[i].SetPos(m_cvt.points[i].x, m_cvt.points[i].y);
   }
 
   if (DBG)cout << "********Step*********" << endl;
