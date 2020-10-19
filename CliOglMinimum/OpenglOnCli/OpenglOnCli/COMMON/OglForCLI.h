@@ -44,6 +44,8 @@ public:
   EVec3f m_cnt; //camera focus point
   EVec3f m_up ; //camera Up (y-axis) direction 
 
+  bool is_Rotation_fixed = false;
+
   OglCameraParam()
   {
     m_pos = EVec3f(0, 0, 10);
@@ -74,6 +76,8 @@ public:
   //  
   void RotateCamera( int mouse_dx, int mouse_dy)
   {
+
+      if (is_Rotation_fixed)return;
     float theta = -mouse_dx / 200.0f;
     float phi   = -mouse_dy / 200.0f;
 
@@ -157,7 +161,7 @@ public:
     m_camera.m_pos = EVec3f(0, 0, 10);
     m_camera.m_cnt = EVec3f(0, 0, 0 );
     m_camera.m_up  = EVec3f(0, 1, 0 );
-    m_background_color = EVec4f(0, 0, 0, 0.5);
+    m_background_color = EVec4f(1, 1, 1, 1);
 
     m_is_rendering = false;
 

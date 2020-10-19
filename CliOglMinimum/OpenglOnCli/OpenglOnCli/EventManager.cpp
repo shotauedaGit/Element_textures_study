@@ -115,6 +115,83 @@ static void DrawSphere(int reso_i, int reso_j, float radius)
   delete[] verts;
   delete[] norms;
 }
+
+
+
+static void DrawRect(double W,double H) {
+    {
+
+        glBegin(GL_TRIANGLES);
+        // front
+        // triangle 0
+
+        //glNormal3f(0.0f, 0.0f, 1.0f); 
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(-H / 2, -W / 2, 0.0);
+
+        //glNormal3f(0.0f, 0.0f, 1.0f); 
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(H / 2, -W / 2, 0.0);
+        
+        //glNormal3f(0.0f, 0.0f, 1.0f); 
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(-H / 2, W / 2, 0.0);
+
+        // triangle 1
+
+        //glNormal3f(0.0f, 0.0f, 1.0f); 
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(H / 2, -W / 2,0.0);
+        
+
+
+        //glNormal3f(0.0f, 0.0f, 1.0f); 
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3f(H / 2, W / 2,0.0);
+
+        //glNormal3f(0.0f, 0.0f, 1.0f); 
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(-H / 2, W / 2, 0.0);
+
+        
+
+        /*
+        //glNormal3f(0.0f, 0.0f, 1.0f); 
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(-H / 2, 0.0,-W / 2);
+
+        //glNormal3f(0.0f, 0.0f, 1.0f); 
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(H / 2,0.0,-W / 2);
+        //glNormal3f(0.0f, 0.0f, 1.0f); 
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(-H / 2,0.0, W / 2);
+
+        // triangle 1
+        //glNormal3f(0.0f, 0.0f, 1.0f); 
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(H / 2,0.0, -W / 2);
+        //glNormal3f(0.0f, 0.0f, 1.0f); 
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(-H / 2,0.0, W / 2);
+
+        //glNormal3f(0.0f, 0.0f, 1.0f); 
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3f(H / 2,0.0, W / 2);
+        */
+
+
+        glEnd();
+
+    }
+}
+
+static void Draw2DRect(double x, double y, double w, double h) {
+    glPushMatrix();
+    glTranslatef(x, y, 0);
+    DrawRect(w, h);
+    glPopMatrix();
+}
   
 
 
@@ -122,44 +199,59 @@ static void DrawSphere(int reso_i, int reso_j, float radius)
 void EventManager::DrawScene()
 {
   //ここにレンダリングルーチンを書く
+  
+
+  glEnable(GL_DEPTH_TEST);
+
+  //glOrtho(-3, 3, 3, -3, -1, 1);
+
+
   glBegin(GL_LINES );
+
+  /*
   glColor3d(1,0,0); glVertex3d(0,0,0); glVertex3d(10,0,0);
   glColor3d(0,1,0); glVertex3d(0,0,0); glVertex3d(0,10,0);
   glColor3d(0,0,1); glVertex3d(0,0,0); glVertex3d(0,0,10);
+  */
+
+
+  
+
+  int gr = 2; //(even!!)
+
+  for (int xi = -gr; xi <= gr; xi++) {
+      for (int yi = -gr; yi <= gr; yi++){
+          glColor3d(0, 0, 1); glVertex3d(xi, yi, -gr); glVertex3d(xi, yi, gr);
+      }
+  }
+
   glEnd();
 
   
-  const static float diff[4] = { 1.0f, 0.2f, 0, 0.3f };
-  const static float ambi[4] = { 1.0f, 0.2f, 0, 0.3f };
-  const static float spec[4] = { 1,1,1,0.3f };
+  const static float diff[4] = { 1.0f, 0, 0, 1.0f };
+  const static float ambi[4] = { 1.0f, 0, 0, 1.0f };
+  const static float spec[4] = { 1.0 , 0, 0, 1.0f };
   const static float shin[1] = { 64.0f };
 
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);
   glEnable(GL_LIGHT2);
+  
+  
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR  , spec);
   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE  , diff);
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT  , ambi);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shin);
   
 
-  glEnable( GL_CULL_FACE );
-  glCullFace(GL_FRONT );
+  //glEnable( GL_CULL_FACE );
+  //glCullFace(GL_FRONT );
 
-  glBegin(GL_TRIANGLES );
-  glNormal3f(0,0,1);
-  glVertex3f(0,0,0);
-  glVertex3f(1,0,0);
-  glVertex3f(1,1,0);
 
-  glNormal3f(0,1,0);
-  glVertex3f(0,0,0);
-  glVertex3f(1,0,0);
-  glVertex3f(1,0,1);
-  glEnd();
-
-  DrawSphere(20,20,3.0f);
+  Draw2DRect(1, 1, 1, 1);
+  Draw2DRect(-1, -1, 1.5, 1.5);
+  //DrawSphere(20, 20, 0.4f);
  
 }
 
