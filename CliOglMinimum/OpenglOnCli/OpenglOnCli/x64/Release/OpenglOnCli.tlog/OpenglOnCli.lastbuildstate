@@ -1,2 +1,2 @@
-#TargetFrameworkVersion=v4.6.1:PlatformToolSet=v141:EnableManagedIncrementalBuild=true:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=10.0.16299.0
-Release|x64|C:\VCProjects\IGLabProgramBootup\CliOglMinimum\OpenglOnCli\|
+PlatformToolSet=v142:VCToolArchitecture=Native32Bit:VCToolsVersion=14.27.29110:TargetPlatformVersion=10.0.18362.0:TargetFrameworkVersion=v4.6.1::EnableManagedIncrementalBuild=true:
+Release|x64|C:\Users\ueda\Myfolder\gitrepos\Element_textures_study\CliOglMinimum\OpenglOnCli\|
