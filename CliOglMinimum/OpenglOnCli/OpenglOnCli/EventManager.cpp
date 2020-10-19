@@ -141,11 +141,12 @@ static void DrawSphere(int reso_i, int reso_j, float radius)
 static void DrawRect(double W,double H) {
     {
 
+
+        glColor3d(1.0, 0, 1.0);
         glBegin(GL_TRIANGLES);
         // front
         // triangle 0
-
-        //glColor3d(1.0, 0, 1.0);
+        //
 
         //glNormal3f(0.0f, 0.0f, 1.0f); 
         glTexCoord2f(0.0f, 1.0f);
@@ -210,6 +211,7 @@ static void DrawRect(double W,double H) {
 
 static void Draw2DRect(double x, double y, double w, double h) {
     glPushMatrix();
+    glColor3d(1.0, 1.0, 0);
     glTranslatef(x, y, 0);
     DrawRect(w, h);
     glPopMatrix();
@@ -227,43 +229,51 @@ void EventManager::DrawScene()
 
   //glOrtho(-3, 3, 3, -3, -1, 1);
 
-
+  glLineWidth(10.0);
   glBegin(GL_LINES );
-
   int gr = 2;
 
-  glLineWidth(10.0);
   glColor3d(1, 0, 0); glVertex3d(-gr, 0, 0); glVertex3d(gr, 0, 0);
   glColor3d(0, 1, 0); glVertex3d(0, -gr, 0); glVertex3d(0, gr, 0);
   glColor3d(0, 0, 1); glVertex3d(0, 0, -gr); glVertex3d(0, 0, gr);
 
+  glEnd();
+  
   glLineWidth(1.0);
+  glBegin(GL_LINES);
   for (int xi = -gr; xi <= gr; xi++) {
       for (int yi = -gr; yi <= gr; yi++){
           glColor3d(0, 0, 1); glVertex3d(xi, yi, -gr); glVertex3d(xi, yi, gr);
       }
   }
-
   glEnd();
+  
 
   
-  const static float diff[4] = { 1.0f, 0, 0, 1.0f };
-  const static float ambi[4] = { 1.0f, 0, 0, 1.0f };
-  const static float spec[4] = { 1.0f, 0, 0, 1.0f };
-  const static float shin[1] = { 64.0f };
 
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
+  
+  const static float diffR[4] = { 1.0f, 0, 0, 1.0f };
+  const static float ambiR[4] = { 1.0f, 0, 0, 1.0f };
+  const static float specR[4] = { 1.0f, 0, 0, 1.0f };
+  const static float shinR[1] = { 64.0f };
+
+  const static float diffB[4] = { 0, 0, 1.0f, 1.0f };
+  const static float ambiB[4] = { 0, 0, 1.0f, 1.0f };
+  const static float specB[4] = { 0, 0, 1.0f, 1.0f };
+  const static float shinB[1] = { 64.0f };
+
+  //glEnable(GL_LIGHTING);
+  //glEnable(GL_LIGHT0);
   //glEnable(GL_LIGHT1);
   //glEnable(GL_LIGHT2);
   
   
-  
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR  , spec);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE  , diff);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT  , ambi);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shin);
-  
+  /*
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR  , specB);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE  , diffB);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT  , ambiB);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shinB);
+  */
 
   //glEnable( GL_CULL_FACE );
   //glCullFace(GL_FRONT );
