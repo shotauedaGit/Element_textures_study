@@ -44,7 +44,8 @@ public:
   EVec3f m_cnt; //camera focus point
   EVec3f m_up ; //camera Up (y-axis) direction 
 
-  bool is_Rotation_fixed = false;
+  bool is_Rotation_fixed = true;
+  bool is_Translate_fixed = true;
 
   OglCameraParam()
   {

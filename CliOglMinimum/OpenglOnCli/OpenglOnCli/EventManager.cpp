@@ -8,6 +8,8 @@
 #include <vector>
 #include <list>
 
+using namespace std;
+
 
 EventManager::EventManager()
 {
@@ -56,7 +58,25 @@ void EventManager::BtnUpRight (int x, int y, OglForCLI *ogl)
 
 void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
 {
-  if ( !m_btn_right && !m_btn_middle && !m_btn_left) return;
+
+
+    double ogl_x;
+    double ogl_y;
+    double ogl_z;
+
+    ogl->Project(x,y,0,ogl_x,ogl_y,ogl_z);
+
+    cout << "(x,y) = (" << x << "," << y <<")  In Ogl : "<<ogl_x<<","<<ogl_y<<","<<ogl_z<<"  btn:  ";
+
+    if (m_btn_right)cout << "right";
+    if (m_btn_middle)cout << "middle";
+    if (m_btn_left)cout << "left";
+
+    cout << "\n";
+
+    if (!m_btn_right && !m_btn_middle && !m_btn_left) {
+        return;
+    }
 
   ogl->MouseMove( EVec2i(x,y) );
   OpenglOnCli::MainForm_RedrawPanel();
@@ -124,6 +144,8 @@ static void DrawRect(double W,double H) {
         glBegin(GL_TRIANGLES);
         // front
         // triangle 0
+
+        //glColor3d(1.0, 0, 1.0);
 
         //glNormal3f(0.0f, 0.0f, 1.0f); 
         glTexCoord2f(0.0f, 1.0f);
@@ -208,17 +230,14 @@ void EventManager::DrawScene()
 
   glBegin(GL_LINES );
 
-  /*
-  glColor3d(1,0,0); glVertex3d(0,0,0); glVertex3d(10,0,0);
-  glColor3d(0,1,0); glVertex3d(0,0,0); glVertex3d(0,10,0);
-  glColor3d(0,0,1); glVertex3d(0,0,0); glVertex3d(0,0,10);
-  */
+  int gr = 2;
 
+  glLineWidth(10.0);
+  glColor3d(1, 0, 0); glVertex3d(-gr, 0, 0); glVertex3d(gr, 0, 0);
+  glColor3d(0, 1, 0); glVertex3d(0, -gr, 0); glVertex3d(0, gr, 0);
+  glColor3d(0, 0, 1); glVertex3d(0, 0, -gr); glVertex3d(0, 0, gr);
 
-  
-
-  int gr = 2; //(even!!)
-
+  glLineWidth(1.0);
   for (int xi = -gr; xi <= gr; xi++) {
       for (int yi = -gr; yi <= gr; yi++){
           glColor3d(0, 0, 1); glVertex3d(xi, yi, -gr); glVertex3d(xi, yi, gr);
@@ -230,13 +249,14 @@ void EventManager::DrawScene()
   
   const static float diff[4] = { 1.0f, 0, 0, 1.0f };
   const static float ambi[4] = { 1.0f, 0, 0, 1.0f };
-  const static float spec[4] = { 1.0 , 0, 0, 1.0f };
+  const static float spec[4] = { 1.0f, 0, 0, 1.0f };
   const static float shin[1] = { 64.0f };
 
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
-  glEnable(GL_LIGHT1);
-  glEnable(GL_LIGHT2);
+  //glEnable(GL_LIGHT1);
+  //glEnable(GL_LIGHT2);
+  
   
   
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR  , spec);
@@ -248,7 +268,7 @@ void EventManager::DrawScene()
   //glEnable( GL_CULL_FACE );
   //glCullFace(GL_FRONT );
 
-
+  
   Draw2DRect(1, 1, 1, 1);
   Draw2DRect(-1, -1, 1.5, 1.5);
   //DrawSphere(20, 20, 0.4f);
