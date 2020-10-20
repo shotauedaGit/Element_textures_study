@@ -64,15 +64,32 @@ void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
     double ogl_y;
     double ogl_z;
 
-    ogl->Project(x,y,0,ogl_x,ogl_y,ogl_z);
+    //cout << "(x,y) = (" << x << "," << y <<")  In Ogl : "<<ogl_x<<","<<ogl_y<<","<<ogl_z<<"  btn:  ";
 
-    cout << "(x,y) = (" << x << "," << y <<")  In Ogl : "<<ogl_x<<","<<ogl_y<<","<<ogl_z<<"  btn:  ";
+    
+    /*
+    int w = ogl->win_w;
+    int h = ogl->win_h;
+    GetWorldCoord(x, y, w, h);
+    cout << "(W,H) = ( "<< w<< " , " << h <<" )" ;
 
+    cout << "  btn:  ";
     if (m_btn_right)cout << "right";
     if (m_btn_middle)cout << "middle";
     if (m_btn_left)cout << "left";
+    */
 
-    cout << "\n";
+    EVec3f Rpos, Rdir , Z0pos;
+    ogl->GetCursorRay(x,y,Rpos,Rdir);
+
+    //cout << "Ray : " << Rpos << "  ->  " << Rpos + Rdir;
+    double Pz = Rpos.z(),Nz = Rdir.z();
+    double k = -(Pz / Nz);
+
+    Z0pos = Rpos + Rdir * k; //************************ マウスの z = 0上の座標 
+
+    cout << "..." << endl;
+    cout << Z0pos << endl;
 
     if (!m_btn_right && !m_btn_middle && !m_btn_left) {
         return;
@@ -142,7 +159,7 @@ static void DrawRect(double W,double H) {
     {
 
 
-        glColor3d(1.0, 0, 1.0);
+    
         glBegin(GL_TRIANGLES);
         // front
         // triangle 0
@@ -209,14 +226,61 @@ static void DrawRect(double W,double H) {
     }
 }
 
-static void Draw2DRect(double x, double y, double w, double h) {
+static void Draw2DRect(double x, double y,double z, double w, double h) {
     glPushMatrix();
     glColor3d(1.0, 1.0, 0);
-    glTranslatef(x, y, 0);
+
+    if(z!=0)glTranslatef(x, y, -0.01);
+    else glTranslatef(x, y, 0);
+
     DrawRect(w, h);
     glPopMatrix();
 }
   
+/*
+double EventManager::GetDepth(int x,int y) {
+    float z;
+    GLint viewport[4]; // ビューポート
+
+    // デバイス座標系とウィンドウ座標系の変換
+
+    glReadBuffer(GL_BACK);
+
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    glReadPixels(x, viewport[3] - y, 1, 1,
+        GL_DEPTH_COMPONENT,
+        GL_FLOAT,
+        &z);
+
+    
+
+    return z;
+}
+*/
+
+EVec3d EventManager::GetWorldCoord(int x, int y,int w,int h) {
+    GLdouble model[16], proj[16];
+
+    GLint view[4] = {0,0,w,h};
+    GLfloat z;
+    GLdouble wx, wy, wz;
+
+    glReadBuffer(GL_BACK);
+
+    glGetDoublev(GL_MODELVIEW_MATRIX, model);
+    glGetDoublev(GL_PROJECTION_MATRIX, proj);
+
+    
+
+    glReadPixels(x, view[3] - y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
+    gluUnProject(x, view[3] - y, z, model, proj, view, &wx, &wy, &wz);
+
+    cout << "(wx,wy,wz) = ( " << wx << "," << wy << "," << wz <<" )"<<endl;
+    cout << " view(0,1,2,3) = (" << view[0] << "," << view[1] << "," << view[2] << "," << view[3] << endl;
+    cout << "viewport[3]:" << view[3] << " x: " << x << " y: " << y << " depth: " << z << endl;
+
+    return EVec3d(wx, wy, wz);
+}
 
 
 
@@ -278,9 +342,14 @@ void EventManager::DrawScene()
   //glEnable( GL_CULL_FACE );
   //glCullFace(GL_FRONT );
 
+  glColor3d(1, 0, 1);
   
-  Draw2DRect(1, 1, 1, 1);
-  Draw2DRect(-1, -1, 1.5, 1.5);
+  Draw2DRect(1, 1,0, 1, 1);
+  Draw2DRect(-1, -1, 0, 1.5, 1.5);
+
+  glColor3d(0, 1, 0);
+  Draw2DRect(0, 0,-0.01, 0.5, 0.5);
+
   //DrawSphere(20, 20, 0.4f);
  
 }

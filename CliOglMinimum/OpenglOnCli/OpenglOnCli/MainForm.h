@@ -15,6 +15,10 @@ namespace OpenglOnCli {
 	using namespace System::Data;
 	using namespace System::Drawing;
 
+
+	//int win_width;
+	//int win_height;
+
 	/// <summary>
 	/// MainForm ‚ÌŠT—v
 	/// </summary>
@@ -29,12 +33,14 @@ namespace OpenglOnCli {
     static MainForm^ m_singleton;
 
   public: 
-    static MainForm^ GetInst() 
+    static MainForm^ GetInst()
     {
       if (m_singleton == nullptr) m_singleton = gcnew MainForm();
       return m_singleton;
     }
     void RedrawMainPanel();
+
+
 
 
 
@@ -110,9 +116,26 @@ namespace OpenglOnCli {
   private: System::Void MainForm_KeyUp(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e);
 	private: System::Void MainForm_Load(System::Object^ sender, System::EventArgs^ e) {
 	}
+
+
+	public:
+		/*
+		   void getPanel_WH() {
+			   OpenglOnCli::win_width = m_main_panel->Width;
+			   OpenglOnCli::win_height = m_main_panel->Height;
+		   }
+		*/
+
 	};
+
+
 
   inline void MainForm_RedrawPanel(){
     MainForm::GetInst()->RedrawMainPanel();
   }
+
+  inline void MainForm_getPanelWH() {
+	  //MainForm::GetInst()->getPanel_WH();
+  }
+
 }

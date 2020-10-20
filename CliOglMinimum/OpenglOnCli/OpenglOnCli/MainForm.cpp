@@ -106,6 +106,8 @@ void MainForm::RedrawMainPanel()
                      fovY, nearDist, farDist);
   EventManager::GetInst()->DrawScene();
 
+  std::cout << "(window W,H) = " << m_main_panel->Width << " , " << m_main_panel->Height << "\n";
+
 
   m_ogl->OnDrawEnd();
 }

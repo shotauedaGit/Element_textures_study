@@ -153,6 +153,9 @@ private:
 
 public:
 
+    int win_w;
+    int win_h;
+
   ~OglForCLI() {}
 
   OglForCLI(HDC dc)
@@ -219,7 +222,7 @@ public:
 
 
   void OnDrawBegin(
-    int    screem_width, 
+    int    screem_width, //screem!!!!!!!!!!!!
     int    screen_height, 
     double fovY = 45.0, 
     double view_near = 0.02, 
@@ -231,6 +234,9 @@ public:
     oglMakeCurrent();
 
     glViewport(0, 0, screem_width, screen_height);
+
+    win_h = screen_height;
+    win_w = screem_width;
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

@@ -26,6 +26,9 @@ public:
   void MouseMove    (int x, int y, OglForCLI *ogl);
   
   void DrawScene();
+
+  EVec3d GetWorldCoord(int x, int y,int w,int h);
+  //double GetDepth(int x, int y);
 };
 
 
