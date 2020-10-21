@@ -1,5 +1,6 @@
 #pragma once
 #include "COMMON/OglForCLI.h"
+#include "DET.h"
 
 #pragma unmanaged 
 
@@ -12,6 +13,10 @@ private:
   bool m_btn_right, m_btn_left, m_btn_middle;
  
 public: 
+
+    DET sample_element_texture;
+    DiscreteElement tmp;
+
   static EventManager* GetInst(){
     static EventManager p;
     return &p;

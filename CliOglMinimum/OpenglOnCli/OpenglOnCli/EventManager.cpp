@@ -7,66 +7,64 @@
 
 #include <vector>
 #include <list>
-
 using namespace std;
-
 
 EventManager::EventManager()
 {
   std::cout << "EventManager constructor\n";
   m_btn_right = m_btn_left = m_btn_middle = false;
-}
 
+  sample_element_texture.LoadTexture();
+  sample_element_texture.SetTexture("e0.bmp", sample_element_texture.texID[0]);
+  sample_element_texture.SetTexture("e1.bmp", sample_element_texture.texID[1]);
+  sample_element_texture.SetTexture("e2.bmp", sample_element_texture.texID[2]);
+  sample_element_texture.SetTexture("e3.bmp", sample_element_texture.texID[3]);
+  sample_element_texture.SetTexture("e4.bmp", sample_element_texture.texID[4]);
+  sample_element_texture.SetTexture("e5.bmp", sample_element_texture.texID[5]);
+  sample_element_texture.SetTexture("e6.bmp", sample_element_texture.texID[6]);
+
+  tmp = sample_element_texture.Abst_elements[0];
+
+  //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+}
 
 void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
 {
   m_btn_left = true;
   ogl->BtnDown_Trans( EVec2i(x,y) );
 } 
-
 void EventManager::BtnDownMiddle(int x, int y, OglForCLI *ogl)
 {
   m_btn_middle = true;
   ogl->BtnDown_Zoom( EVec2i(x,y) );
 }
-
 void EventManager::BtnDownRight (int x, int y, OglForCLI *ogl)
 {
   m_btn_right = true;
   ogl->BtnDown_Rot( EVec2i(x,y) );
 }
-
-
-
 void EventManager::BtnUpLeft  (int x, int y, OglForCLI *ogl)
 {
   m_btn_left = false;
   ogl->BtnUp();
 }
-
 void EventManager::BtnUpMiddle(int x, int y, OglForCLI *ogl)
 {
   m_btn_middle = false;
   ogl->BtnUp();
 }
-
 void EventManager::BtnUpRight (int x, int y, OglForCLI *ogl)
 {
   m_btn_right = false;
   ogl->BtnUp();
 }
-
 void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
 {
-
-
     double ogl_x;
     double ogl_y;
     double ogl_z;
-
     //cout << "(x,y) = (" << x << "," << y <<")  In Ogl : "<<ogl_x<<","<<ogl_y<<","<<ogl_z<<"  btn:  ";
-
-    
     /*
     int w = ogl->win_w;
     int h = ogl->win_h;
@@ -99,11 +97,6 @@ void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
   OpenglOnCli::MainForm_RedrawPanel();
 }
 
-
-
-
-
-
 //************  Solid sphere *************************************
 
 static EVec3f GetPosOnSphere( const float &phi, const float &theta)
@@ -112,8 +105,6 @@ static EVec3f GetPosOnSphere( const float &phi, const float &theta)
                  std::sin(phi),
                 -std::cos(phi) * std::sin(theta) );
 }
-
-
 static void DrawSphere(int reso_i, int reso_j, float radius)
 {
   EVec3f *norms = new EVec3f[reso_i * reso_j];
@@ -152,9 +143,6 @@ static void DrawSphere(int reso_i, int reso_j, float radius)
   delete[] verts;
   delete[] norms;
 }
-
-
-
 static void DrawRect(double W,double H) {
     {
 
@@ -225,10 +213,8 @@ static void DrawRect(double W,double H) {
 
     }
 }
-
 static void Draw2DRect(double x, double y,double z, double w, double h) {
     glPushMatrix();
-    glColor3d(1.0, 1.0, 0);
 
     if(z!=0)glTranslatef(x, y, -0.01);
     else glTranslatef(x, y, 0);
@@ -236,7 +222,6 @@ static void Draw2DRect(double x, double y,double z, double w, double h) {
     DrawRect(w, h);
     glPopMatrix();
 }
-  
 /*
 double EventManager::GetDepth(int x,int y) {
     float z;
@@ -257,7 +242,6 @@ double EventManager::GetDepth(int x,int y) {
     return z;
 }
 */
-
 EVec3d EventManager::GetWorldCoord(int x, int y,int w,int h) {
     GLdouble model[16], proj[16];
 
@@ -288,34 +272,37 @@ void EventManager::DrawScene()
 {
   //ここにレンダリングルーチンを書く
   
-
   glEnable(GL_DEPTH_TEST);
 
   //glOrtho(-3, 3, 3, -3, -1, 1);
 
   glLineWidth(10.0);
   glBegin(GL_LINES );
-  int gr = 2;
-
-  glColor3d(1, 0, 0); glVertex3d(-gr, 0, 0); glVertex3d(gr, 0, 0);
-  glColor3d(0, 1, 0); glVertex3d(0, -gr, 0); glVertex3d(0, gr, 0);
-  glColor3d(0, 0, 1); glVertex3d(0, 0, -gr); glVertex3d(0, 0, gr);
-
+  //glColor3d(1, 0, 0); glVertex3d(-gr, 0, 0); glVertex3d(gr, 0, 0);
+  //glColor3d(0, 1, 0); glVertex3d(0, -gr, 0); glVertex3d(0, gr, 0);
+  //glColor3d(0, 0, 1); glVertex3d(0, 0, -gr); glVertex3d(0, 0, gr);
   glEnd();
-  
   glLineWidth(1.0);
-  glBegin(GL_LINES);
-  for (int xi = -gr; xi <= gr; xi++) {
-      for (int yi = -gr; yi <= gr; yi++){
+  
+  
+  int gr = 8;
+  for (int xi = -gr,i = 0; xi <= gr; xi++,i++) {
+      for (int yi = -gr, j = 0; yi <= gr; yi++,j++){
+          glBegin(GL_LINES);
           glColor3d(0, 0, 1); glVertex3d(xi, yi, -gr); glVertex3d(xi, yi, gr);
+          glEnd();
+
+          double r = (double)i / (2 * gr);
+          double b = (double)j / (2 * gr);
+
+          //glColor3d( r, 0.3, b);
+          // Draw2DRect(xi, yi, 0, 0.75, 0.75);
+
       }
   }
-  glEnd();
   
-
-  
-
-  
+  //glEnd();
+  /*
   const static float diffR[4] = { 1.0f, 0, 0, 1.0f };
   const static float ambiR[4] = { 1.0f, 0, 0, 1.0f };
   const static float specR[4] = { 1.0f, 0, 0, 1.0f };
@@ -325,33 +312,40 @@ void EventManager::DrawScene()
   const static float ambiB[4] = { 0, 0, 1.0f, 1.0f };
   const static float specB[4] = { 0, 0, 1.0f, 1.0f };
   const static float shinB[1] = { 64.0f };
-
+  */
   //glEnable(GL_LIGHTING);
   //glEnable(GL_LIGHT0);
   //glEnable(GL_LIGHT1);
   //glEnable(GL_LIGHT2);
-  
-  
   /*
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR  , specB);
   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE  , diffB);
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT  , ambiB);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shinB);
   */
-
   //glEnable( GL_CULL_FACE );
   //glCullFace(GL_FRONT );
 
+  /*
   glColor3d(1, 0, 1);
-  
   Draw2DRect(1, 1,0, 1, 1);
   Draw2DRect(-1, -1, 0, 1.5, 1.5);
-
   glColor3d(0, 1, 0);
   Draw2DRect(0, 0,-0.01, 0.5, 0.5);
-
+  */
   //DrawSphere(20, 20, 0.4f);
- 
+
+  int rep = sample_element_texture.Abst_elements.size();
+  
+  cout << " sixe : " << rep << endl;
+  tmp.Setpos(EVec2d(0.5, 0.3));
+  //tmp.Draw();
+
+  for (int i = 0; i < rep; ++i) {
+      
+      sample_element_texture.Abst_elements[i].Setpos(EVec2d(i, i));
+      sample_element_texture.Abst_elements[i].Draw();
+  }
 }
 
 

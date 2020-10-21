@@ -67,6 +67,8 @@ public:
         {
             //GLuint image = loadBMP_custom("./aaa.bmp");
 
+            glColor3d(1, 1, 1);
+
 
             glBegin(GL_TRIANGLES);
             // front
@@ -95,7 +97,6 @@ public:
 
             glTexCoord2f(1.0f, 0.0f);
             glVertex3f(H / 2, 0.0f, W / 2);
-
             glEnd();
         }
 
@@ -185,9 +186,8 @@ private:
         //glEnable(GL_TEXTURE_2D);
         glEnable(GL_DEPTH_TEST);
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //glEnable(GL_BLEND);
+        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         
         glGenTextures(1, &txHdl);  // generate texture handle
@@ -199,7 +199,7 @@ private:
         
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // set bilinear filtering
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // set bilinear filtering
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // set access unit byte
+        //glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // set access unit byte
 
         glTexImage2D(GL_TEXTURE_2D, // 1D, 2D, or 3D
             0,          // MIPmap level

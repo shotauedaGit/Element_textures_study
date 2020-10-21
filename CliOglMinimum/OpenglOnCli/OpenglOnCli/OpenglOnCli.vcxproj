@@ -150,6 +150,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="COMMON\OglForCLI.h" />
+    <ClInclude Include="DET.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="MainForm.h">
       <FileType>CppForm</FileType>
@@ -162,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="DET.cpp" />
     <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="MainForm.cpp" />
     <ClCompile Include="OpenglOnCli.cpp" />

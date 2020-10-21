@@ -30,6 +30,9 @@
     <ClInclude Include="COMMON\OglForCLI.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="DET.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc">
@@ -50,6 +53,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="EventManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="DET.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

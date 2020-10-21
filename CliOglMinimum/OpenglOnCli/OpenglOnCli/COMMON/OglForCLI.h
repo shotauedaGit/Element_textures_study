@@ -44,14 +44,17 @@ public:
   EVec3f m_cnt; //camera focus point
   EVec3f m_up ; //camera Up (y-axis) direction 
 
-  bool is_Rotation_fixed = true;
-  bool is_Translate_fixed = true;
+  bool is_Rotation_fixed = false;
+  bool is_Translate_fixed = false;
 
   OglCameraParam()
   {
     m_pos = EVec3f(0, 0, 10);
     m_cnt = EVec3f(0, 0, 0 );
     m_up  = EVec3f(0, 1, 0 );
+
+    //is_Rotation_fixed = true;
+    //is_Translate_fixed = true;
   }
 
   OglCameraParam( const OglCameraParam &src) {
@@ -78,7 +81,7 @@ public:
   void RotateCamera( int mouse_dx, int mouse_dy)
   {
 
-      if (is_Rotation_fixed)return;
+    if (is_Rotation_fixed)return;
     float theta = -mouse_dx / 200.0f;
     float phi   = -mouse_dy / 200.0f;
 
@@ -97,6 +100,8 @@ public:
   
   void TranslateCamera(int mouse_dx, int mouse_dy)
   {
+    if (is_Translate_fixed)return;
+
     float c = (m_pos - m_cnt).norm() / 900.0f;
     EVec3f x_dir = ((m_pos - m_cnt).cross(m_up)).normalized();
     EVec3f t = c * mouse_dx * x_dir + c * mouse_dy * m_up;

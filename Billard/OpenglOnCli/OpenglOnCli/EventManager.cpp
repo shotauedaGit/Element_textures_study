@@ -259,8 +259,8 @@ void EventManager::DrawScene()
   const static float ambiGB[4] = { 0.3f, 0.8f, 0.8f, 1.0f };
   
   //*
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
+  //glEnable(GL_LIGHTING);
+  //glEnable(GL_LIGHT0);
   //glEnable(GL_LIGHT1);
   //glEnable(GL_LIGHT2);
   //*/
