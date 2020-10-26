@@ -244,6 +244,7 @@ public:
     win_w = screem_width;
 
     glMatrixMode(GL_PROJECTION);
+    //gl ortho appears??
     glLoadIdentity();
     gluPerspective(fovY, screem_width / (double)screen_height, view_near, view_far);
 

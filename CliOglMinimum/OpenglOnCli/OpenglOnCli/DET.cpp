@@ -11,14 +11,16 @@ void DiscreteElement::Draw() {
     glTranslatef(pos.x(), pos.y(), 0);
     //glRotatef(90, 0, 1, 0);
 
-    glBindTexture(GL_TEXTURE_2D, type);
+     //-1 : テクスチャはなし
 
     {
-        //GLuint image = loadBMP_custom("./aaa.bmp");
-
-        glEnable(GL_TEXTURE_2D);
+        if (type != -1) {
+            glBindTexture(GL_TEXTURE_2D, type);
+            glEnable(GL_TEXTURE_2D);
+        }
+        
         glBegin(GL_TRIANGLES);
-        glColor3d(1, 1, 1);
+        glColor4d(mycolor.x(), mycolor.y(), mycolor.z(),1);
         // front
         //glNormal3f(0.0f, 0.0f, 1.0f); 
         glTexCoord2f(0.0f, 1.0f);
@@ -47,7 +49,7 @@ void DiscreteElement::Draw() {
         glVertex3f(-H / 2, W / 2, 0.0);
 
         glEnd();
-        glDisable(GL_TEXTURE_2D);
+        if (type != -1)glDisable(GL_TEXTURE_2D);
     }
     
     glPopMatrix();
@@ -88,14 +90,24 @@ void DET::SetTexture(char *filepath,GLuint texID) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // set bilinear filtering
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // set bilinear filtering
 
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
 }
 
 void DET::TEST() {
-    int N = 3;
-    int Nele = 10;
+    int rep = Abst_elements.size();
 
-    for (int i = 0; i < Nele; ++i) {
-        //elements.push_back(Abst_elements[i % 3]);
+    for (int i = 0; i < rep; ++i){
+
+        Abst_elements[i].Setpos(EVec2d(-3,i-3));
     }
 
 }
+
+
+//DiscreteElement& DET::getSelectedAbst_element() {
+//    for(DiscreteElement ab_e : Abst_elements){
+//    }
+//}
+
+

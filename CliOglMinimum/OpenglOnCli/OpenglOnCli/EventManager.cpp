@@ -14,19 +14,22 @@ EventManager::EventManager()
   std::cout << "EventManager constructor\n";
   m_btn_right = m_btn_left = m_btn_middle = false;
 
-  sample_element_texture.LoadTexture();
-  sample_element_texture.SetTexture("e0.bmp", sample_element_texture.texID[0]);
-  sample_element_texture.SetTexture("e1.bmp", sample_element_texture.texID[1]);
-  sample_element_texture.SetTexture("e2.bmp", sample_element_texture.texID[2]);
-  sample_element_texture.SetTexture("e3.bmp", sample_element_texture.texID[3]);
-  sample_element_texture.SetTexture("e4.bmp", sample_element_texture.texID[4]);
-  sample_element_texture.SetTexture("e5.bmp", sample_element_texture.texID[5]);
-  sample_element_texture.SetTexture("e6.bmp", sample_element_texture.texID[6]);
-
-  tmp = sample_element_texture.Abst_elements[0];
-
+  //glEnable(GL_BLEND);
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
+  sample_element_texture.LoadTexture();
+  sample_element_texture.SetTexture("e0.png", sample_element_texture.texID[0]);
+  sample_element_texture.SetTexture("e1.png", sample_element_texture.texID[1]);
+  sample_element_texture.SetTexture("e2.png", sample_element_texture.texID[2]);
+  sample_element_texture.SetTexture("e3.png", sample_element_texture.texID[3]);
+  sample_element_texture.SetTexture("e4.png", sample_element_texture.texID[4]);
+  sample_element_texture.SetTexture("e5.png", sample_element_texture.texID[5]);
+  sample_element_texture.SetTexture("e6.png", sample_element_texture.texID[6]);
+  tmp = sample_element_texture.Abst_elements[0];
+
+  sample_element_texture.TEST(); //put loaded elements
+  
 }
 
 void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
@@ -89,8 +92,11 @@ void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
     cout << "..." << endl;
     cout << Z0pos << endl;
 
+    EVec2d cur_pos(Z0pos.x(),Z0pos.y());
+    sample_element_texture.pointer.Setpos(cur_pos);
+
     if (!m_btn_right && !m_btn_middle && !m_btn_left) {
-        return;
+        //return;
     }
 
   ogl->MouseMove( EVec2i(x,y) );
@@ -143,6 +149,7 @@ static void DrawSphere(int reso_i, int reso_j, float radius)
   delete[] verts;
   delete[] norms;
 }
+
 static void DrawRect(double W,double H) {
     {
 
@@ -266,26 +273,23 @@ EVec3d EventManager::GetWorldCoord(int x, int y,int w,int h) {
     return EVec3d(wx, wy, wz);
 }
 
-
-
 void EventManager::DrawScene()
 {
   //ここにレンダリングルーチンを書く
-  
   glEnable(GL_DEPTH_TEST);
-
   //glOrtho(-3, 3, 3, -3, -1, 1);
-
+  /*
   glLineWidth(10.0);
   glBegin(GL_LINES );
-  //glColor3d(1, 0, 0); glVertex3d(-gr, 0, 0); glVertex3d(gr, 0, 0);
-  //glColor3d(0, 1, 0); glVertex3d(0, -gr, 0); glVertex3d(0, gr, 0);
-  //glColor3d(0, 0, 1); glVertex3d(0, 0, -gr); glVertex3d(0, 0, gr);
+  glColor3d(1, 0, 0); glVertex3d(-gr, 0, 0); glVertex3d(gr, 0, 0);
+  glColor3d(0, 1, 0); glVertex3d(0, -gr, 0); glVertex3d(0, gr, 0);
+  glColor3d(0, 0, 1); glVertex3d(0, 0, -gr); glVertex3d(0, 0, gr);
   glEnd();
+  */
   glLineWidth(1.0);
   
-  
   int gr = 8;
+  /*
   for (int xi = -gr,i = 0; xi <= gr; xi++,i++) {
       for (int yi = -gr, j = 0; yi <= gr; yi++,j++){
           glBegin(GL_LINES);
@@ -300,8 +304,23 @@ void EventManager::DrawScene()
 
       }
   }
-  
-  //glEnd();
+  */
+
+  double z = 0;
+  for (int xi = -gr, i = 0; xi <= gr; xi++, i++) {
+      glBegin(GL_LINES);
+      glColor3d(0.5, 0, 0.5); glVertex3d(xi, -gr, z); glVertex3d(xi, gr, z);
+      glEnd();
+  }
+  for (int yi = -gr, i = 0; yi <= gr; yi++, i++) {
+      glBegin(GL_LINES);
+      glColor3d(0, 0.5, 0); glVertex3d(-gr, yi , z); glVertex3d(gr,yi, z);
+      glEnd();
+  }
+
+  sample_element_texture.pointer.Draw();
+  for (DiscreteElement ei : sample_element_texture.Abst_elements)ei.Draw();
+
   /*
   const static float diffR[4] = { 1.0f, 0, 0, 1.0f };
   const static float ambiR[4] = { 1.0f, 0, 0, 1.0f };
@@ -325,7 +344,6 @@ void EventManager::DrawScene()
   */
   //glEnable( GL_CULL_FACE );
   //glCullFace(GL_FRONT );
-
   /*
   glColor3d(1, 0, 1);
   Draw2DRect(1, 1,0, 1, 1);
@@ -333,19 +351,17 @@ void EventManager::DrawScene()
   glColor3d(0, 1, 0);
   Draw2DRect(0, 0,-0.01, 0.5, 0.5);
   */
-  //DrawSphere(20, 20, 0.4f);
 
+  /*
   int rep = sample_element_texture.Abst_elements.size();
-  
   cout << " sixe : " << rep << endl;
   tmp.Setpos(EVec2d(0.5, 0.3));
   //tmp.Draw();
-
   for (int i = 0; i < rep; ++i) {
-      
       sample_element_texture.Abst_elements[i].Setpos(EVec2d(i, i));
       sample_element_texture.Abst_elements[i].Draw();
   }
+  */
 }
 
 

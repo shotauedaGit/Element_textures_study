@@ -2,7 +2,7 @@
 #pragma managed
 
 #include "COMMON/stdc++.h"
-
+using namespace std;
 
 inline bool t_loadImage(
     const char* fname,
@@ -42,6 +42,7 @@ inline bool t_loadImage(
 
     unsigned char* pBuf = (unsigned char*)bmpData->Scan0.ToPointer();
 
+    cout << fname << " :: ";
     
     if (bmp->PixelFormat == System::Drawing::Imaging::PixelFormat::Format8bppIndexed)
     {
@@ -54,10 +55,12 @@ inline bool t_loadImage(
             }
         }
     }
-    else if (bmp->PixelFormat == System::Drawing::Imaging::PixelFormat::Format24bppRgb ||
-        bmp->PixelFormat == System::Drawing::Imaging::PixelFormat::Format32bppArgb)
+    else if (bmp->PixelFormat == System::Drawing::Imaging::PixelFormat::Format24bppRgb)
     {
-        //24bit BGRBGRBGR...   32bit BGRA BGRABGRA...
+        //24bit BGRBGRBGR...  
+
+        cout << "24 bit" << endl;
+        
 
         int BitCount = bmp->GetPixelFormatSize(bmp->PixelFormat);
         int Step = BitCount / 8;
@@ -70,6 +73,25 @@ inline bool t_loadImage(
                 rgba[I + 2] = (unsigned char)pBuf[x * Step + 0 + y * bmpData->Stride]; //B 
                 rgba[I + 1] = (unsigned char)pBuf[x * Step + 1 + y * bmpData->Stride]; //G 
                 rgba[I + 0] = (unsigned char)pBuf[x * Step + 2 + y * bmpData->Stride]; //R
+            }
+        }
+    }
+    else if (bmp->PixelFormat == System::Drawing::Imaging::PixelFormat::Format32bppArgb) {
+        // 32bit BGRA BGRABGRA...
+        cout << "32 bit" << endl;
+        
+        int BitCount = bmp->GetPixelFormatSize(bmp->PixelFormat);
+        int Step = BitCount / 8;
+
+        for (int y = 0; y < H; y++)
+        {
+            for (int x = 0; x < W; x++)
+            {
+                const int I = 4 * (x + y * W);
+                rgba[I + 3] = (unsigned char)pBuf[x * Step + 3 + y * bmpData->Stride]; //B 
+                rgba[I + 2] = (unsigned char)pBuf[x * Step + 0 + y * bmpData->Stride]; //G 
+                rgba[I + 1] = (unsigned char)pBuf[x * Step + 1 + y * bmpData->Stride]; //R 
+                rgba[I + 0] = (unsigned char)pBuf[x * Step + 2 + y * bmpData->Stride]; //A
             }
         }
     }
