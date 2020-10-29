@@ -79,7 +79,6 @@ inline bool t_loadImage(
     else if (bmp->PixelFormat == System::Drawing::Imaging::PixelFormat::Format32bppArgb) {
         // 32bit BGRA BGRABGRA...
         cout << "32 bit" << endl;
-        
         int BitCount = bmp->GetPixelFormatSize(bmp->PixelFormat);
         int Step = BitCount / 8;
 

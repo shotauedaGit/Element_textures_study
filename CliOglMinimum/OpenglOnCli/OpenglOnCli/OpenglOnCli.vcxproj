@@ -150,6 +150,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="COMMON\OglForCLI.h" />
+    <ClInclude Include="CVT.h" />
     <ClInclude Include="DET.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="MainForm.h">
@@ -163,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="CVT.cpp" />
     <ClCompile Include="DET.cpp" />
     <ClCompile Include="EventManager.cpp" />
     <ClCompile Include="MainForm.cpp" />

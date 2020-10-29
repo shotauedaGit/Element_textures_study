@@ -81,9 +81,9 @@ namespace OpenglOnCli {
 				| System::Windows::Forms::AnchorStyles::Left)
 				| System::Windows::Forms::AnchorStyles::Right));
 			this->m_main_panel->AutoSize = true;
-			this->m_main_panel->Location = System::Drawing::Point(172, 12);
+			this->m_main_panel->Location = System::Drawing::Point(355, 12);
 			this->m_main_panel->Name = L"m_main_panel";
-			this->m_main_panel->Size = System::Drawing::Size(600, 600);
+			this->m_main_panel->Size = System::Drawing::Size(1017, 1017);
 			this->m_main_panel->TabIndex = 0;
 			this->m_main_panel->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MainForm::m_main_panel_Paint);
 			this->m_main_panel->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &MainForm::m_main_panel_MouseDown);
@@ -95,7 +95,7 @@ namespace OpenglOnCli {
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(784, 761);
+			this->ClientSize = System::Drawing::Size(1384, 1041);
 			this->Controls->Add(this->m_main_panel);
 			this->Name = L"MainForm";
 			this->Text = L"MainForm";

@@ -18,17 +18,20 @@ EventManager::EventManager()
   //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-  sample_element_texture.LoadTexture();
-  sample_element_texture.SetTexture("e0.png", sample_element_texture.texID[0]);
-  sample_element_texture.SetTexture("e1.png", sample_element_texture.texID[1]);
-  sample_element_texture.SetTexture("e2.png", sample_element_texture.texID[2]);
-  sample_element_texture.SetTexture("e3.png", sample_element_texture.texID[3]);
-  sample_element_texture.SetTexture("e4.png", sample_element_texture.texID[4]);
-  sample_element_texture.SetTexture("e5.png", sample_element_texture.texID[5]);
-  sample_element_texture.SetTexture("e6.png", sample_element_texture.texID[6]);
-  tmp = sample_element_texture.Abst_elements[0];
+  element_textures.LoadTexture();
+  element_textures.SetTexture("e0.png", element_textures.texID[0]);
+  element_textures.SetTexture("e1.png", element_textures.texID[1]);
+  element_textures.SetTexture("e2.png", element_textures.texID[2]);
+  element_textures.SetTexture("e3.png", element_textures.texID[3]);
+  element_textures.SetTexture("e4.png", element_textures.texID[4]);
+  element_textures.SetTexture("e5.png", element_textures.texID[5]);
+  element_textures.SetTexture("e6.png", element_textures.texID[6]);
+  
+  
+  element_textures.SetTexture("default_sample_element.png", element_textures.texID[7]);
 
-  sample_element_texture.TEST(); //put loaded elements
+  tmp = element_textures.Abst_elements[0];
+  element_textures.TEST(); //put loaded elements
   
 }
 
@@ -93,7 +96,7 @@ void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
     cout << Z0pos << endl;
 
     EVec2d cur_pos(Z0pos.x(),Z0pos.y());
-    sample_element_texture.pointer.Setpos(cur_pos);
+    element_textures.pointer.Setpos(cur_pos); //マウスポインタの先のゲーム内座標
 
     if (!m_btn_right && !m_btn_middle && !m_btn_left) {
         //return;
@@ -274,10 +277,8 @@ EVec3d EventManager::GetWorldCoord(int x, int y,int w,int h) {
 }
 
 void EventManager::DrawScene()
-{
-  //ここにレンダリングルーチンを書く
+{//ここにレンダリングルーチンを書く
   glEnable(GL_DEPTH_TEST);
-  //glOrtho(-3, 3, 3, -3, -1, 1);
   /*
   glLineWidth(10.0);
   glBegin(GL_LINES );
@@ -287,8 +288,7 @@ void EventManager::DrawScene()
   glEnd();
   */
   glLineWidth(1.0);
-  
-  int gr = 8;
+  int gr = 9;
   /*
   for (int xi = -gr,i = 0; xi <= gr; xi++,i++) {
       for (int yi = -gr, j = 0; yi <= gr; yi++,j++){
@@ -305,7 +305,6 @@ void EventManager::DrawScene()
       }
   }
   */
-
   double z = 0;
   for (int xi = -gr, i = 0; xi <= gr; xi++, i++) {
       glBegin(GL_LINES);
@@ -318,8 +317,82 @@ void EventManager::DrawScene()
       glEnd();
   }
 
-  sample_element_texture.pointer.Draw();
-  for (DiscreteElement ei : sample_element_texture.Abst_elements)ei.Draw();
+
+
+
+  //ここからの処理は、DETのInterfaceProcess()処理で閉じ込める予定、(eventmanager経由でボタンの状態をおしえれば不足はない)
+  
+  element_textures.getSelectedAbst_element_Idx();//いまはフレームの描画もここで
+  element_textures.getSelected_Sample_element_Idx();//いまはフレームの描画もここで
+
+  int selected_Abst_Idx = element_textures.selected_Abst_element_Idx;
+  int selected_sample_Idx = element_textures.selected_sample_element_Idx;
+
+  int cur_Abst_Idx = element_textures.current_Abst_element_Idx;
+  
+  if (selected_Abst_Idx != -1 && m_btn_left) { 
+      if(cur_Abst_Idx == -1)element_textures.current_Abst_element_Idx = selected_Abst_Idx; 
+  
+  }
+  else {  }
+
+  //cout << "selected_Abst : " << selected_Abst_Idx << endl;
+
+
+  
+  //cout << "cur_Abst 1 : " << cur_Abst_Idx << endl;
+
+  if (cur_Abst_Idx != -1 ) { 
+      if (!m_btn_left) {
+          
+          if (selected_sample_Idx != -1) {
+              
+              int txHdl = element_textures.Abst_elements[cur_Abst_Idx].type;
+              double H = element_textures.Abst_elements[cur_Abst_Idx].H;
+              double W  = element_textures.Abst_elements[cur_Abst_Idx].W;
+              
+              element_textures.sample_elements[selected_sample_Idx].type = txHdl;
+              element_textures.sample_elements[selected_sample_Idx].H = H;
+              element_textures.sample_elements[selected_sample_Idx].W = W;
+              
+          }
+          element_textures.current_Abst_element_Idx = -1;
+          
+
+      }
+
+      element_textures.Abst_elements[cur_Abst_Idx].Draw_SelectedFlame(4);
+  }
+
+  cout << "cur_Abst : " << cur_Abst_Idx << endl;
+  cout << "selected_sample : " << selected_sample_Idx << endl;
+  
+
+
+
+
+
+
+  //DETのelementDraw()処理
+  element_textures.pointer.Draw();
+
+  int NumOfAbst = element_textures.Abst_elements.size();
+  int NumOfsample = element_textures.sample_elements.size();
+
+  for (int i = 0; i < NumOfAbst - 1; ++i) {
+      element_textures.Abst_elements[i].Draw();
+  }
+
+  for (int i = 0; i < NumOfsample; i++){
+      if (i == 5) {
+          float _h = element_textures.sample_elements[i].H;
+          float _w = element_textures.sample_elements[i].W;
+
+          element_textures.sample_elements[i].mycolor;
+
+      }
+      element_textures.sample_elements[i].Draw();
+  }
 
   /*
   const static float diffR[4] = { 1.0f, 0, 0, 1.0f };
@@ -351,7 +424,6 @@ void EventManager::DrawScene()
   glColor3d(0, 1, 0);
   Draw2DRect(0, 0,-0.01, 0.5, 0.5);
   */
-
   /*
   int rep = sample_element_texture.Abst_elements.size();
   cout << " sixe : " << rep << endl;

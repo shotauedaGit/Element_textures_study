@@ -14,7 +14,7 @@ private:
  
 public: 
 
-    DET sample_element_texture;
+    DET element_textures;
     DiscreteElement tmp;
 
   static EventManager* GetInst(){
