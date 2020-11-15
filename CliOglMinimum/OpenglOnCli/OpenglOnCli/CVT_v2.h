@@ -202,7 +202,7 @@ struct CVT_v2 {
     int edge_len = -1;
     int tri_len = -1;
     const double wall_scale = 1.1;
-    const int wall_reso = 8;
+    const int wall_reso = 4;
 
     int nV = -1;  //DET.NumOfElement‚Æ‚¨‚È‚¶
     int nV_exist = -1;
