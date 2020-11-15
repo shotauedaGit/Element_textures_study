@@ -85,6 +85,24 @@ System::Void MainForm::m_main_panel_Resize(System::Object^  sender, System::Even
 System::Void MainForm::MainForm_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e)
 {
   std::cout << (int) e->KeyCode << "\n";
+
+  switch ((int)e->KeyCode)
+  {
+  case 49:
+      EventManager::GetInst()->keyDown1(m_ogl); break;
+  case 50:
+      EventManager::GetInst()->keyDown2(m_ogl); break;
+  case 51:
+      EventManager::GetInst()->keyDown3(m_ogl); break;
+  case 52:
+      EventManager::GetInst()->keyDown4(m_ogl); break;
+  case 53:
+      EventManager::GetInst()->keyDown5(m_ogl); break;
+
+  default:
+      break;
+  }
+
 }
 
 

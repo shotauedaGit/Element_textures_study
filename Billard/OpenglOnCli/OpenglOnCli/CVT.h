@@ -1,8 +1,8 @@
 #pragma once
 #include "COMMON\stdc++.h"
+#include <chrono>
 //#include <unordered_set>
 using namespace std;
-
 /*
 namespace std {
 	// 標準ライブラリは struct hash<>というデータをハッシュ化する関数オブジェクトのテンプレートを提供している
@@ -34,16 +34,12 @@ void hash_combine(size_t& seed, T const& v) {
 
 */
 
-
-
-
 struct Point {
 	bool fixed = false;
 	float x = 0.0f, y = 0.0f;
 
 	Point() { x = 0.0f; y = 0.0f; }
 	Point(float _x, float _y) :x(_x), y(_y) {}
-	
 
 	bool operator==(Point p) {
 		return (x == p.x) && (y == p.y);
@@ -55,26 +51,21 @@ struct Point {
 	Point operator*(float k) { return Point(k * x, k * y); }
 	Point operator/(double k) { return Point(x / k, y / k); }
 
-
 	float Dist(Point tg) {
 		float dx = fabsf(x - tg.x);
 		float dy = fabsf(y - tg.y);
 		return sqrtf(dx * dx + dy * dy);
 	}
-
 	float Cross_z(Point tg) {//クロス関のz成分.平面上の座標なのでこれしかいらない.
 		return x * tg.y - y * tg.x;
 	}
-
 	float dot(Point p) {
 		return x * p.x + y * p.y;
 	}
-
 	void DBG(string name) {
 		cout << fixed << setprecision(3) <<name<<"("<< x << "," << y <<")"<< endl;
 	}
 };
-
 struct Edge {// v0 ---> v1
 	Edge() {}
 	Edge(Point _v0, Point _v1) :v0(_v0), v1(_v1) {}
@@ -88,7 +79,6 @@ struct Edge {// v0 ---> v1
 		v0.DBG("v0");v1.DBG("v1");
 	}
 };
-
 struct Circle {
 	Circle() {}
 	Circle(Point c, float _r) :center(c), r(_r) {}
@@ -99,7 +89,6 @@ struct Circle {
 	Point center;
 	float r = 0.0;
 };
-
 struct Triangle {
 	Point A, B, C;
 	Edge AB, BC, CA;
@@ -166,7 +155,6 @@ struct Triangle {
 
 };
 
-
 struct CVT {
 	/*
 	座標を格納しておく点列
@@ -204,26 +192,34 @@ struct CVT {
 	int iterCnt = 1;
 
 
+	int TriSearch = 0, Flip = 0;
+	std::chrono::system_clock::time_point  start;
+	void Timer_start() {
+		start = std::chrono::system_clock::now(); // 計測開始時間
+	}
+	double Timer_end() {
+		auto end = std::chrono::system_clock::now();  // 計測終了時間
+		double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(); //処理に要した時間をミリ秒に変換
+		return elapsed;
+	}
+
+
 	vector<Triangle> triangles; //現存している三角形リスト
 	//vector<bool> TriangleExit; //３角形が追加されたらこいつも
-	
 	//list<Triangle> triangles;
 	//unordered_set<Triangle> triangles;
-
 	CVT() {
 		//Init(20.0f, 20.0f, 10);
 		//Init(60.0f, 60.0f, 200);
 		//Init(85.0f, 85.0f, 350);
-		Init(100.0f, 100.0f, 500);
+		//Init(100.0f, 100.0f, 800);
 		//Init(120.0f, 120.0f, 750);
-		//Init(145.0f, 145.0f, 1000);
+		Init(145.0f, 145.0f, 1000);
 	}
 
 	CVT(float _w, float _h, int _numberOfVertices) {
 		Init(_w, _h, _numberOfVertices);
 	}
-
-
 	int getTriangleIdxShareEdge(Edge e);// ALL SEACH find ONE Triangle
 	int getTriangleIdxWrapingPoint(Point p);// all search find ONE Triangle
 
@@ -246,6 +242,7 @@ struct CVT {
 
 	void Init(float w, float h,int n);
 
+	void DT_pi(int idx);
 	void DelaunayTrianglaion();
 
 	void DBG_idx_DelTri(int tgtIdx);

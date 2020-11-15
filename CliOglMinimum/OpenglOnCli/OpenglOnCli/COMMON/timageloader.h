@@ -91,6 +91,14 @@ inline bool t_loadImage(
                 rgba[I + 2] = (unsigned char)pBuf[x * Step + 0 + y * bmpData->Stride]; //G 
                 rgba[I + 1] = (unsigned char)pBuf[x * Step + 1 + y * bmpData->Stride]; //R 
                 rgba[I + 0] = (unsigned char)pBuf[x * Step + 2 + y * bmpData->Stride]; //A
+                
+                /*
+                int r = (unsigned int)pBuf[x * Step + 2 + y * bmpData->Stride];
+                int g = (unsigned int)pBuf[x * Step + 1 + y * bmpData->Stride];
+                int b = (unsigned int)pBuf[x * Step + 0 + y * bmpData->Stride];
+                int a = (unsigned int)pBuf[x * Step + 3 + y * bmpData->Stride];
+                cout << fname << "  (x,y) = (" << x << "," << y << ")" << "  (R,G,B,A) = " <<r<<","<<g<<","<<b<<","<<a<<endl;
+                */
             }
         }
     }

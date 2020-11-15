@@ -30,6 +30,12 @@ public:
   void BtnUpRight   (int x, int y, OglForCLI *ogl);
   void MouseMove    (int x, int y, OglForCLI *ogl);
   
+  void keyDown1(OglForCLI* ogl);
+  void keyDown2(OglForCLI* ogl);
+  void keyDown3(OglForCLI* ogl);
+  void keyDown4(OglForCLI* ogl);
+  void keyDown5(OglForCLI* ogl);
+
   void DrawScene();
 
   EVec3d GetWorldCoord(int x, int y,int w,int h);

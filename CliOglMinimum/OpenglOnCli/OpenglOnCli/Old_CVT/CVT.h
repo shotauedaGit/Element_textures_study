@@ -177,7 +177,6 @@ struct CVT {
 	点で三角形を分割
 	
 	*/
-
 	const float eps = 0.05f;
 	bool isFinished = false;//収束が終わったかどうか
 
@@ -188,10 +187,8 @@ struct CVT {
 	int nV = 10000;
 	float width = 10.0f;
 	float height = 10.0f;
-
 	float barrierWidth;
 	float barrierHeight;
-
 	float wobble = 4.0f;
 
 	Triangle hugeTriangle;
@@ -200,13 +197,11 @@ struct CVT {
 
 	int doneDelauny = -1;
 	int doneVolonoi = -1;
-
 	int iterCnt = 1;
 
 
 	vector<Triangle> triangles; //現存している三角形リスト
 	//vector<bool> TriangleExit; //３角形が追加されたらこいつも
-	
 	//list<Triangle> triangles;
 	//unordered_set<Triangle> triangles;
 
@@ -223,20 +218,16 @@ struct CVT {
 		Init(_w, _h, _numberOfVertices);
 	}
 
-
 	int getTriangleIdxShareEdge(Edge e);// ALL SEACH find ONE Triangle
 	int getTriangleIdxWrapingPoint(Point p);// all search find ONE Triangle
-
 	bool isSuperTriEdge(Edge e);
 
 	vector<int> getALLTriangleIdxSharePoint(Point p);//All search :find ALL Triangle s.t. shares given point
 	int sameTriangleIdx(Triangle T);// All search from "triangles(vector)"
-
 	void DivideTriangleAtPoint(int Triangleidx,Point p);//(指定したインデックスの)三角形をその点で分割
 	void Flip_FromTriangle(Triangle t);
 
 	void InitTriangleVector();
-
 	void delTriangle(Triangle t);
 	void delTriangle_idx(int idx);//somosomo三角形消してるのはFlipの時だけだった
 	void addTriangle(Triangle t);
@@ -247,16 +238,13 @@ struct CVT {
 	void Init(float w, float h,int n);
 
 	void DelaunayTrianglaion();
-
 	void DBG_idx_DelTri(int tgtIdx);
 	Point DBG_idx_CentVolo(int tgtIdx);
 
 	vector<int> FixOrder(vector<int> poly);
 	vector<Point> CentroidVoronoi();
-
 	void IterStep();
 	void Randomize();
-	
 	void Changelit();
 };
 

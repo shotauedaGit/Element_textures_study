@@ -139,9 +139,17 @@ void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
   ogl->BtnDown_Trans( EVec2i(x,y) );
   ogl->GetCursorRay( EVec2i(x,y), cursor_p, cursor_d);
 
+
+  //*
   if (executeIter)executeIter = false;
   else executeIter = true;
+  //*/
 
+  /*
+  static int idx = 0;
+  if (idx == 0)m_cvt.InitTriangleVector();
+  m_cvt.DT_pi(idx); ++idx;
+  //*/
   /*
   int L = 20;
   float mx = 3, mn = 2;
@@ -214,7 +222,7 @@ void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
 
 void EventManager::KeyDown_1(OglForCLI* ogl) {
     if (pastkey == 49)return;
-
+    
     m_cvt.InitTriangleVector();
     m_cvt.DelaunayTrianglaion();
     pastkey = 49;
@@ -327,7 +335,7 @@ void EventManager::DrawScene()
   glEnd();
 
   bool DBG = false; 
-  bool showDelaunay = false;
+  bool showDelaunay = true;
   //showDelaunay = true;
   
   int lim;
@@ -345,7 +353,7 @@ void EventManager::DrawScene()
   glBindTexture(GL_TEXTURE_2D, txHdl);
 
   //for (int i = 0; i < m_cvt.nV; ++i) m_balls[i].Draw();//*******************  SolidXXXX •`‰æŠ®—¹  **********************
-  for (int i = 0; i < m_cvt.nV; ++i) m_elements[i].Draw();//*******************  SolidXXXX •`‰æŠ®—¹  **********************
+  //for (int i = 0; i < m_cvt.nV; ++i) m_elements[i].Draw();//*******************  SolidXXXX •`‰æŠ®—¹  **********************
 
 
   {
@@ -515,8 +523,14 @@ void EventManager::Step()
   OpenglOnCli::MainForm_RedrawPanel();
   bool DBG = false;
 
+  static int idx = 0;
+
   if (executeIter) {
-      if (m_cvt.isFinished == false)m_cvt.IterStep();
+      if (m_cvt.isFinished == false) {
+          m_cvt.IterStep();
+          //if(idx == 0)m_cvt.InitTriangleVector();
+          //m_cvt.DT_pi(idx); ++idx;
+      }
   }
 
   for (int i = 0; i < m_cvt.nV; ++i) {

@@ -13,9 +13,15 @@ EventManager::EventManager()
 {
   std::cout << "EventManager constructor\n";
   m_btn_right = m_btn_left = m_btn_middle = false;
-
+  glEnable(GL_DEPTH_TEST);
   //glEnable(GL_BLEND);
   //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+  //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  glShadeModel(GL_SMOOTH);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //glEnable(GL_BLEND);
   //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
   element_textures.LoadTexture();
@@ -26,14 +32,17 @@ EventManager::EventManager()
   element_textures.SetTexture("e4.png", element_textures.texID[4]);
   element_textures.SetTexture("e5.png", element_textures.texID[5]);
   element_textures.SetTexture("e6.png", element_textures.texID[6]);
-  
-  
   element_textures.SetTexture("default_sample_element.png", element_textures.texID[7]);
-
   tmp = element_textures.Abst_elements[0];
   element_textures.TEST(); //put loaded elements
   
 }
+
+void EventManager::keyDown1(OglForCLI* ogl) { element_textures.synthesis(); OpenglOnCli::MainForm_RedrawPanel(); cout << "key" << 1 << " pressed!!" << endl; }
+void EventManager::keyDown2(OglForCLI* ogl) { cout << "key" << 2 << " pressed!!" << endl; }
+void EventManager::keyDown3(OglForCLI* ogl) { cout << "key" << 3 << " pressed!!" << endl; }
+void EventManager::keyDown4(OglForCLI* ogl) { cout << "key" << 4 << " pressed!!" << endl; }
+void EventManager::keyDown5(OglForCLI* ogl) { cout << "key" << 5 << " pressed!!" << endl; }
 
 void EventManager::BtnDownLeft  (int x, int y, OglForCLI *ogl)
 {
@@ -82,26 +91,23 @@ void EventManager::MouseMove    (int x, int y, OglForCLI *ogl)
     if (m_btn_middle)cout << "middle";
     if (m_btn_left)cout << "left";
     */
-
     EVec3f Rpos, Rdir , Z0pos;
     ogl->GetCursorRay(x,y,Rpos,Rdir);
 
     //cout << "Ray : " << Rpos << "  ->  " << Rpos + Rdir;
     double Pz = Rpos.z(),Nz = Rdir.z();
     double k = -(Pz / Nz);
-
     Z0pos = Rpos + Rdir * k; //************************ マウスの z = 0上の座標 
 
-    cout << "..." << endl;
-    cout << Z0pos << endl;
+    //cout << "..." << endl;
+    //cout << Z0pos << endl;
 
     EVec2d cur_pos(Z0pos.x(),Z0pos.y());
-    element_textures.pointer.Setpos(cur_pos); //マウスポインタの先のゲーム内座標
+    element_textures.pointer.point.set_pos(cur_pos); //マウスポインタの先のゲーム内座標
 
     if (!m_btn_right && !m_btn_middle && !m_btn_left) {
         //return;
     }
-
   ogl->MouseMove( EVec2i(x,y) );
   OpenglOnCli::MainForm_RedrawPanel();
 }
@@ -152,7 +158,6 @@ static void DrawSphere(int reso_i, int reso_j, float radius)
   delete[] verts;
   delete[] norms;
 }
-
 static void DrawRect(double W,double H) {
     {
 
@@ -287,8 +292,26 @@ void EventManager::DrawScene()
   glColor3d(0, 0, 1); glVertex3d(0, 0, -gr); glVertex3d(0, 0, gr);
   glEnd();
   */
+  {//DrawBackGround
+      EVec3d mycolor(1, 1, 1);
+      double H = 20;double W = 20;
+
+      glBegin(GL_TRIANGLES);
+      glColor4d(mycolor.x(), mycolor.y(), mycolor.z(), 1);
+
+      // front
+      glVertex3f(-H / 2, -W / 2, -0.2);
+      glVertex3f(H / 2, -W / 2, -0.2);
+      glVertex3f(-H / 2, W / 2, -0.2);
+
+      // triangle 1
+      glVertex3f(H / 2, -W / 2, -0.2);
+      glVertex3f(H / 2, W / 2, -0.2);
+      glVertex3f(-H / 2, W / 2, -0.2);
+      glEnd();
+  }
   glLineWidth(1.0);
-  int gr = 9;
+  int gr = 10;
   /*
   for (int xi = -gr,i = 0; xi <= gr; xi++,i++) {
       for (int yi = -gr, j = 0; yi <= gr; yi++,j++){
@@ -317,9 +340,6 @@ void EventManager::DrawScene()
       glEnd();
   }
 
-
-
-
   //ここからの処理は、DETのInterfaceProcess()処理で閉じ込める予定、(eventmanager経由でボタンの状態をおしえれば不足はない)
   
   element_textures.getSelectedAbst_element_Idx();//いまはフレームの描画もここで
@@ -327,26 +347,19 @@ void EventManager::DrawScene()
 
   int selected_Abst_Idx = element_textures.selected_Abst_element_Idx;
   int selected_sample_Idx = element_textures.selected_sample_element_Idx;
-
   int cur_Abst_Idx = element_textures.current_Abst_element_Idx;
-  
   if (selected_Abst_Idx != -1 && m_btn_left) { 
       if(cur_Abst_Idx == -1)element_textures.current_Abst_element_Idx = selected_Abst_Idx; 
-  
   }
   else {  }
-
   //cout << "selected_Abst : " << selected_Abst_Idx << endl;
-
-
-  
   //cout << "cur_Abst 1 : " << cur_Abst_Idx << endl;
 
   if (cur_Abst_Idx != -1 ) { 
-      if (!m_btn_left) {
-          
+      if (!m_btn_left) {//ボタンリリース時に
           if (selected_sample_Idx != -1) {
               
+              //パレットからのコピー部分
               int txHdl = element_textures.Abst_elements[cur_Abst_Idx].type;
               double H = element_textures.Abst_elements[cur_Abst_Idx].H;
               double W  = element_textures.Abst_elements[cur_Abst_Idx].W;
@@ -354,31 +367,24 @@ void EventManager::DrawScene()
               element_textures.sample_elements[selected_sample_Idx].type = txHdl;
               element_textures.sample_elements[selected_sample_Idx].H = H;
               element_textures.sample_elements[selected_sample_Idx].W = W;
-              
+
+              //手動の要素のidxを記憶
+              element_textures.handmade_element_idx.push_back(selected_sample_Idx);
           }
+
           element_textures.current_Abst_element_Idx = -1;
-          
-
       }
-
       element_textures.Abst_elements[cur_Abst_Idx].Draw_SelectedFlame(4);
   }
 
-  cout << "cur_Abst : " << cur_Abst_Idx << endl;
-  cout << "selected_sample : " << selected_sample_Idx << endl;
-  
-
-
-
-
-
+  //cout << "cur_Abst : " << cur_Abst_Idx << endl;
+  //cout << "selected_sample : " << selected_sample_Idx << endl;
 
   //DETのelementDraw()処理
   element_textures.pointer.Draw();
 
   int NumOfAbst = element_textures.Abst_elements.size();
   int NumOfsample = element_textures.sample_elements.size();
-
   for (int i = 0; i < NumOfAbst - 1; ++i) {
       element_textures.Abst_elements[i].Draw();
   }
@@ -387,13 +393,17 @@ void EventManager::DrawScene()
       if (i == 5) {
           float _h = element_textures.sample_elements[i].H;
           float _w = element_textures.sample_elements[i].W;
-
           element_textures.sample_elements[i].mycolor;
-
       }
+
+      //要素の描画
+      if (element_textures.should_draw(i) == false)continue;
       element_textures.sample_elements[i].Draw();
   }
 
+  //element_textures.sample_tex.IterStep();
+  //element_textures.assignPos_sample_elements();
+  //cout << "Iter!!" << endl;
   /*
   const static float diffR[4] = { 1.0f, 0, 0, 1.0f };
   const static float ambiR[4] = { 1.0f, 0, 0, 1.0f };

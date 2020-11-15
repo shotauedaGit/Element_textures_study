@@ -62,22 +62,18 @@ bool Triangle::isIncluded(Point P) {
 		return false;
 	}
 }
-
 bool Triangle::isPointShared(Triangle t) {
 	return  (t.A == A || t.A == B || t.A == C) ||
 		(t.B == A || t.B == B || t.B == C) ||
 		(t.C == A || t.C == B || t.C == C);
 }
-
 bool Triangle::isPointShared(Point p) {
 	return  (p == A || p == B || p == C);
 }
 
-
 bool Triangle::operator==(Triangle& t) {
 	return (AB == t.AB || AB == t.BC || AB == t.CA) && (BC == t.AB || BC == t.BC || BC == t.CA);
 }
-
 
 bool Triangle::isIncluded(Edge e) {
 	//Edge rAB(B, A);
@@ -85,14 +81,9 @@ bool Triangle::isIncluded(Edge e) {
 	//Edge rCA(A, C);
 	return (AB == e)||(BC == e)||(CA == e)/*(rAB == e) || (rBC == e) || (rCA == e)*/;
 }
-
 bool Triangle::isEdgeShared(Triangle T) {
 	return isIncluded(T.AB) || isIncluded(T.BC) || isIncluded(T.CA);
 }
-
-
-
-
 
 /*コピペしてきた、なんとかする
 struct HalfEdge {
@@ -105,17 +96,9 @@ struct HalfEdge {
 };
 */
 
-
-
 bool CVT::isSuperTriEdge(Edge e) {
 	return (hugeTriangle.isIncluded(e));
 }
-
-
-
-
-
-
 int CVT::sameTriangleIdx(Triangle T) {//exist check ok
 	int lim = triangles.size();
 	for (int i = lim - 1; i >= 0; --i) {
@@ -124,8 +107,6 @@ int CVT::sameTriangleIdx(Triangle T) {//exist check ok
 	cout << "Same Triangle :: not found" << endl;
 	return 0;
 }
-
-
 int CVT::getTriangleIdxShareEdge(Edge e) {//exist check ok
 	int lim = triangles.size();
 	for (int i = lim - 1; i >= 0; --i) {
@@ -138,6 +119,7 @@ int CVT::getTriangleIdxShareEdge(Edge e) {//exist check ok
 int CVT::getTriangleIdxWrapingPoint(Point p) {//exist check ok
 	int lim = triangles.size();
 	for (int i = lim - 1; i >= 0; --i) {
+		TriSearch++;
 		if (triangles[i].isIncluded(p) && triangles[i].exist)return i;
 	}
 	cout << "Wrap point :: not found" << endl;
@@ -211,6 +193,7 @@ void CVT::Flip_FromTriangle(Triangle t) {
 		//cout << "    Flipping st.size() = " << st.size() << endl;
 		Edge e = st.top(); st.pop();
 		//e.DBG("Now AB");
+		Flip++;
 
 		if (isSuperTriEdge(e))continue;
 
@@ -253,20 +236,16 @@ void CVT::Flip_FromTriangle(Triangle t) {
 		}
 	}
 }
-
 //ここを工夫すれば、頂点からそれに属する三角形の集合をもとめられる??
 
 void CVT::delTriangle(Triangle t) {//使わないかも（消去するとき、その直前に全探索して探してきてるものなので）
 	int idx = sameTriangleIdx(t);
 	triangles[idx].exist = false;
 }
-
 void CVT::delTriangle_idx(int idx) { triangles[idx].exist = false; }
-
 void CVT::addTriangle(Triangle t) {
 	triangles.push_back(t);
 }
-
 void CVT::Assignpoints(vector<Point> pts) {//足りないやつ入れたら何もしないよ
 	if (pts.size() >= nV) {
 		for (int i = 0; i < nV; ++i) {
@@ -274,7 +253,6 @@ void CVT::Assignpoints(vector<Point> pts) {//足りないやつ入れたら何もしないよ
 		}
 	}
 }
-
 void CVT::AssignCentroid() {
 	Assignpoints(VCpoints);
 }
@@ -318,7 +296,6 @@ void CVT::Init(float w, float h, int n) { //母点の列と巨大３角形を生成
 
 	Randomize();
 }
-
 void CVT::InitTriangleVector() {
 	triangles.clear();
 
@@ -330,7 +307,6 @@ void CVT::InitTriangleVector() {
 	hugeTriangle = Triangle(Point(0.0, h1 + r3*w1), Point(w1 + 0.66f * r3 * h1, -h1), Point(- w1 - 0.66f * r3 * h1, -h1));
 	addTriangle(hugeTriangle);
 }
-
 void CVT::Randomize() {//isFinishedを初期化している
 	isFinished = false;
 
@@ -342,11 +318,35 @@ void CVT::Randomize() {//isFinishedを初期化している
 	float range = 0.94;
 
 	points.resize(nV);
+
+	//*
+	int cur = 0;
+	int sq = sqrt(nV) + 1;
+	double _w = (width * 2.0 * range) / sq, _h = (height * 2.0 * range) / sq;
+	for (int i = 0; i < sq; ++i) {
+		for (int j = 0; j < sq; ++j) {
+			double rx = ((double)rand() / RAND_MAX) * _w;
+			double ry = ((double)rand() / RAND_MAX) * _h;
+
+			rx += (-width* range) + _w * i;
+			ry += (-height * range) + _h * j;
+
+			points[cur] = Point(rx, ry);
+			cur++;
+			if (cur >= nV) break;
+		}
+		if (cur >= nV) break;
+	}
+	//*/
+
+
+	/*
 	for (int i = 0; i < nV; ++i) {
 		float rx = ((float)rand() / RAND_MAX) * width * 2.0 - width;
 		float ry = ((float)rand() / RAND_MAX) * height * 2.0 - height;
 		points[i] = Point(rx * range, ry * range);
 	}
+	//*/
 
 	float l = -width * 1.1f;
 	float r = width * 1.1f;
@@ -356,7 +356,7 @@ void CVT::Randomize() {//isFinishedを初期化している
 	barrierWidth = r;
 	barrierHeight = u;
 
-	float division = 8;
+	float division = 20;
 	float step = 2*r/division;
 
 	for (float px = l, py = d + step; py < u; py += step) {
@@ -384,7 +384,13 @@ void CVT::Randomize() {//isFinishedを初期化している
 	doneDelauny = -1;
 	doneVolonoi = -1;
 }
+void CVT::DT_pi(int idx) {
 
+	Point p = points[idx];
+	int stidx = getTriangleIdxWrapingPoint(p);
+	DivideTriangleAtPoint(stidx, p);
+	Flip_FromTriangle(triangles[stidx]);
+}
 void CVT::DelaunayTrianglaion() {
 
 	int i = 0;
@@ -407,7 +413,6 @@ void CVT::DelaunayTrianglaion() {
 		++i;
 	}
 }
-
 vector<Point> CVT::CentroidVoronoi() {//ボロノイ重心を求めていく
 	vector<Point> ctv(nV);
 
@@ -433,7 +438,7 @@ vector<Point> CVT::CentroidVoronoi() {//ボロノイ重心を求めていく
 		Triangle tj;
 		for (int j = 0; j < n; ++j) {
 			p = triangles[fixed[j]].Outer.center;
-			q = triangles[fixed[(j + 1) % n]].Outer.center;
+			q = triangles[ fixed[ (j + 1)%n] ].Outer.center;
 
 			tj = Triangle(pi, p, q);
 			cent = cent + ((pi+p+q)/3.0)*tj.S;
@@ -463,8 +468,10 @@ void CVT::IterStep() {// step by step 使用作っとく？？
 	for (Triangle& t : triangles) { t.DBG("ti"); id++;}
 	*/
 
-	//if (iterCnt % 15 == 0)Changelit();
+	Timer_start();
+	TriSearch = 0; Flip = 0;
 
+	//if (iterCnt % 15 == 0)Changelit();
 	InitTriangleVector();
 	//cout << "CVT::IterStep" << endl;
 	DelaunayTrianglaion();
@@ -473,8 +480,12 @@ void CVT::IterStep() {// step by step 使用作っとく？？
 	//cout << "CVT::Centroid calclated" << endl;
 	AssignCentroid();
 	//cout << "CVT::Centroid assigned (as Point)" << endl;
-
 	++iterCnt;
+
+	cout << "Dur: " << Timer_end();
+	cout << "   Search = " << TriSearch;
+	cout << "  Flip = " << Flip;
+	cout << " , " << (double)Flip / nV << "(ave.)" << endl;
 }
 
 void CVT::Changelit() {
@@ -498,8 +509,6 @@ void CVT::Changelit() {
 		
 	}
 }
-
-
 void CVT::DBG_idx_DelTri(int tgtidx) {//execute whole processing around i th point.
 
 	Point pi = points[tgtidx];
@@ -518,7 +527,6 @@ void CVT::DBG_idx_DelTri(int tgtidx) {//execute whole processing around i th poi
 	doneDelauny = tgtidx;
 
 }
-
 Point CVT::DBG_idx_CentVolo(int tgtidx) {//returns volonoi centroid of i th point.
 	//cout << "VOLONOI ** " << tgtidx << "th points processing" << endl;
 

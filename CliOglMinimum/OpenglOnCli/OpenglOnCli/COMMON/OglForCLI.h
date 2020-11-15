@@ -31,11 +31,7 @@
 #include <gl/gl.h> 
 #include <gl/glu.h> 
 #include "tmath.h"
-
 #pragma unmanaged
-
-
-
 
 class OglCameraParam
 {
@@ -129,10 +125,6 @@ public:
   }
   
 };
-
-
-
-
 
 
 class OglForCLI
