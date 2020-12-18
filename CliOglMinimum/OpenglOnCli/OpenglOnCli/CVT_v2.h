@@ -44,6 +44,7 @@ struct Point {
     ~Point() {}
 
     void Copy(const Point& src) {
+        exist = src.exist;
         fixed = src.fixed;
         _info = src._info;
         pos = src.pos;
@@ -233,21 +234,23 @@ struct CVT_v2 {
     void init();
 
     void IterStep() { //ŒJ‚è•Ô‚µ‚â‚ê‚ÎLloyd
-        TriSearch = 0;
-        Flip = 0;
-        Timer_start();
-        
-        reloadVC();
-        resetEdge_Tri_vec();
-        DT();
-        VC();
+        TriSearch = 0;Flip = 0;Timer_start();
 
-        
+        //reloadVC();
+        resetEdge_Tri_vec();DT();VC();reloadVC();
+
         cout << "Dur: " << Timer_end();
         cout << "   Search = " << TriSearch;
         cout << "  Flip = " << Flip;
         cout << " , " << (double)Flip / nV << "(ave.)" << endl;
     }
+
+    void DelTri() {
+        //reloadVC();
+        resetEdge_Tri_vec();
+        DT();
+    }
+
 
     void makeSuperTriangle() {
         //MAKE super triangle
@@ -350,9 +353,65 @@ struct CVT_v2 {
         c = getPointFromInfo(edges[e3].st_Info);
     }
 
+    bool is_the_pair_neibhor(int idx1, int idx2) {
+        if (idx1 == -1 || idx2 == -1)return false;
+        if (idx1 == idx2)return false;
+        bool ret = false;
+
+        vector<int> nbh = get_1_neibhor_point_idx(points[idx1]);
+        for (int id_nb : nbh) {
+            if (id_nb == idx2)ret = true;
+        }
+        return ret;
+    }
+    
+
+    vector< pair<int, int> >get_pair_element(Point ai, double th_low, double th_upp) {
+        bool DBG = false;
+        //bool DBG = true;
+        vector< pair<int, int> > ret;
+        vector<int> nbh_ai = get_1_neibhor_point_idx(ai);
+
+        for (int nbh_ai_i : nbh_ai) {
+            cout << "pair ( " << ai.id() << "," << nbh_ai_i << " ) testing"<<endl;
+            double dist = (ai.pos - points[nbh_ai_i].pos).norm();
+            if (th_low <= dist && dist <= th_upp) {
+                if (DBG)cout << "pair ( " << ai.id() << "," << nbh_ai_i << " )= dist " << dist << endl;
+                ret.push_back(make_pair(ai.id(), nbh_ai_i));
+            }
+        }
+        return ret;
+    }
+
+    vector<int> get_1_neibhor_point_idx(Point point_cent) {
+
+        bool DBG = false;
+        if(DBG)cout << endl << " Neibhor of " << point_cent.id() << "is as follows" << endl;
+
+        vector<int> ret;
+        halfEdge cur = edges[point_cent.hEdge_idx];
+        Info cur_Point_Info = cur.to_Info, first_Point_Info = cur.to_Info;
+        halfEdge cur_pair = edges[cur.pair_idx];
+        halfEdge pair_next = edges[cur_pair.next_idx];
+
+        while (1) {
+            if (cur_Point_Info.gr == 1) {
+                ret.push_back(cur_Point_Info.id);
+                if (DBG)cout << cur_Point_Info.id << " - ";
+            }
+
+            cur = pair_next;
+            cur_Point_Info = cur.to_Info;
+            cur_pair = edges[cur.pair_idx];
+            pair_next = edges[cur_pair.next_idx];
+
+            if (cur_Point_Info == first_Point_Info)break;
+        }
+        if (DBG)cout << endl;
+        return ret;
+    }
+
 };
-
-
 /*
 class Element {
 public:

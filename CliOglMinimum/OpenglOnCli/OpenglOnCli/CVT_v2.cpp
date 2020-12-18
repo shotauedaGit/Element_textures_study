@@ -179,6 +179,8 @@ void CVT_v2::DT() {
     //cout << "[DT wall]" << endl;
 }
 void CVT_v2::exec_DivTri_edgeFlip(Point p) {
+    if (p.exist == false)return;
+    
     //DivTri
     //Triangle_utils tu;
     Point a, b, c;
@@ -375,6 +377,7 @@ void CVT_v2::reloadVC() {
     }
 }
 void CVT_v2::calc_VC_at_point(Point p) {
+    if (p.exist == false)return;
 
     //Triangle_utils tu;
     double curArea = -1, totArea = 0.0;

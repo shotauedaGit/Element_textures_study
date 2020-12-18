@@ -50,7 +50,7 @@ public:
     m_up  = EVec3f(0, 1, 0 );
 
     //is_Rotation_fixed = true;
-    //is_Translate_fixed = true;
+    //is_Translate_fixed = false;
   }
 
   OglCameraParam( const OglCameraParam &src) {
@@ -153,6 +153,8 @@ public:
     int win_w;
     int win_h;
 
+    double off_x = -8, off_y = 0;
+
   ~OglForCLI() {}
 
   OglForCLI(HDC dc)
@@ -166,7 +168,7 @@ public:
 
     m_is_rendering = false;
 
-    SetDefaultProperties();
+    //SetDefaultProperties();
 
 
     m_hdc = dc;
@@ -240,7 +242,9 @@ public:
     glLoadIdentity();
 
     //gluPerspective(fovY, screem_width / (double)screen_height, view_near, view_far);
-    glOrtho(-10.0, 10.0, -10.0, 10.0, -100.0, 100.0);
+    //cout << screem_width << " , " << screen_height << endl;
+    
+    glOrtho( ((double)-screem_width / 100.0)+ off_x, ((double)screem_width / 100.0)+ off_x, ((double)-screen_height/100.0) + off_y, ((double)screen_height / 100.0) + off_y, -100.0, 100.0);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();

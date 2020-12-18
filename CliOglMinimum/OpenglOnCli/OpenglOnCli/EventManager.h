@@ -35,6 +35,11 @@ public:
   void keyDown3(OglForCLI* ogl);
   void keyDown4(OglForCLI* ogl);
   void keyDown5(OglForCLI* ogl);
+  void keyDown_Space(OglForCLI* ogl);
+
+  void report_Key_Down_to_DET(OglForCLI* ogl, int keycode);
+  void report_Key_Up_to_DET(OglForCLI* ogl,int keycode);
+
 
   void DrawScene();
 

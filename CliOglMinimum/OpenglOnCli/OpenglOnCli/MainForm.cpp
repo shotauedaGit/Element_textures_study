@@ -81,13 +81,15 @@ System::Void MainForm::m_main_panel_MouseUp(System::Object^  sender, System::Win
 System::Void MainForm::m_main_panel_Resize(System::Object^  sender, System::EventArgs^  e)
 {
 }
-
 System::Void MainForm::MainForm_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e)
 {
-  std::cout << (int) e->KeyCode << "\n";
 
+    EventManager::GetInst()->report_Key_Down_to_DET(m_ogl, (int)e->KeyCode);
+  //std::cout << (int) e->KeyCode << "\n";
   switch ((int)e->KeyCode)
   {
+  case 32:
+      EventManager::GetInst()->keyDown_Space(m_ogl); break;
   case 49:
       EventManager::GetInst()->keyDown1(m_ogl); break;
   case 50:
@@ -100,14 +102,13 @@ System::Void MainForm::MainForm_KeyDown(System::Object^  sender, System::Windows
       EventManager::GetInst()->keyDown5(m_ogl); break;
 
   default:
+      //std::cout <<"MainForm: keycode = "<<(int)e->KeyCode << "\n";
       break;
   }
-
 }
-
-
 System::Void MainForm::MainForm_KeyUp(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e)
 {
+    EventManager::GetInst()->report_Key_Up_to_DET(m_ogl, (int)e->KeyCode);
 }
 
 
