@@ -9,14 +9,18 @@ void edit_elements::start_edit(DiscreteElement _A0, DiscreteElement _B0,vector<D
     E_A0 = _A0;E_B0 = _B0;
     A0 = E_A0.point.pos;B0 = E_B0.point.pos;
     AB = B0 - A0;
+    ABt = EVec2d(-AB.y(), AB.x());
     
-    draw_scare = 2.0 / (AB.norm());
+    double ABlength = 2.0;
+    draw_scare = ABlength / (AB.norm());
+    ABl_real = (AB.norm());
+
     if (draw_scare < 1.0)draw_scare = 1.0;
     
     EVec2d M = (A0 + B0) / 2;
     EVec2d M0B0 = B0 - M, M0A0 = A0 - M;
-    E_A0.point.set_pos(M0 + M0A0 * draw_scare);
-    E_B0.point.set_pos(M0 + M0B0 * draw_scare);
+    E_A0.point.set_pos(M0 + M0A0 * draw_scare); E_A0.scare *= draw_scare;
+    E_B0.point.set_pos(M0 + M0B0 * draw_scare); E_B0.scare *= draw_scare;
     
     if (arround.size() != 0) {
         neibhor.resize(arround.size());
@@ -28,9 +32,38 @@ void edit_elements::start_edit(DiscreteElement _A0, DiscreteElement _B0,vector<D
         }
     }
 
-    //ABt = EVec2d(-AB.y(), AB.x());
-
+    //redraw_all();
 }
+/*
+void edit_elements::start_edit(DiscreteElement _A0, DiscreteElement _B0, vector<DiscreteElement> arround) {
+    E_A0.Copy_without_Point(_A0);
+    E_B0.Copy_without_Point(_B0);
+
+    EVec2d _M0 = (_A0.point.pos + _B0.point.pos) / 2.0;
+    EVec2d _AB = _B0.point.pos - _A0.point.pos; double ABl = _AB.norm();
+    EVec2d M0A0 = _A0.point.pos - _M0;
+    EVec2d M0B0 = _B0.point.pos - _M0;
+
+    double ABlength = 1.5; draw_scare = ABlength / ABl;
+    E_A0.point.set_pos(M0 + M0A0 * draw_scare); E_A0.scare *= draw_scare;
+    E_B0.point.set_pos(M0 + M0B0 * draw_scare); E_B0.scare *= draw_scare;
+
+    AB = E_B0.point.pos - E_A0.point.pos;
+    ABt = EVec2d(AB.y(), -AB.x());
+    A0 = E_A0.point.pos; B0 = E_B0.point.pos;
+
+
+    int nbh_size = arround.size();
+    neibhor.resize(nbh_size);
+
+    for (int i = 0; i < nbh_size; i++) {
+        EVec2d M0wi = arround[i].point.pos - _M0;
+        neibhor[i].Copy_without_Point(arround[i]);
+        neibhor[i].point.set_pos(M0 + M0wi * draw_scare);
+    }
+}
+*/
+
 void edit_elements::update_input_info(DiscreteElement p, int hover, int just_cl, int last_cl, int drag) {
     pointer = p;
     hover_idx = hover;
@@ -38,19 +71,79 @@ void edit_elements::update_input_info(DiscreteElement p, int hover, int just_cl,
     last_cl_idx = last_cl;
     draging_idx = drag;
 
-    pointer.DBG();
-    cout << "hover :" << hover_idx << "just_cl :" << just_cl_idx
-        << "last_cl :" << last_cl_idx << "draging :" << draging_idx << endl;
+    //pointer.DBG();
+    //cout << "hover :" << hover_idx << "just_cl :" << just_cl_idx
+    //    << "last_cl :" << last_cl_idx << "draging :" << draging_idx << endl;
 
 }
+
+void edit_elements::update_pq() {
+    if (draging_idx == -1)return;
+    EVec2d M0Edit;
+    EVec2d u0 = AB.normalized();
+
+    if (draging_idx == 1) {//A
+        E_A0.point.set_pos(pointer.point.pos);
+        M0Edit = E_A0.point.pos - M0;
+        p_A0 = M0Edit.x() * u0.x() + M0Edit.y() * u0.y();
+        q_A0 = M0Edit.x() * u0.y() - M0Edit.y() * u0.x();
+        cout << "drag A(p,q) = " << p_A0 << " , " << q_A0 << endl;
+        cout << "     B(p,q) = " << p_B0 << " , " << q_B0 << endl;
+    }
+    else if (draging_idx == 2) {
+        E_B0.point.set_pos(pointer.point.pos);
+        M0Edit = E_B0.point.pos - M0;
+        p_B0 = M0Edit.x() * u0.x() + M0Edit.y() * u0.y();
+        q_B0 = M0Edit.x() * u0.y() - M0Edit.y() * u0.x();
+
+        cout << "     A(p,q) = " << p_A0 << " , " << q_A0 << endl;
+        cout << "drag B(p,q) = " << p_B0 << " , " << q_B0 << endl;
+
+    }
+
+}
+
 void edit_elements::redraw_all() {
     if (!isEditing)return;
     E_A0.Draw(); E_B0.Draw();
-    for (int i = 0; i < neibhor.size(); i++)neibhor[i].Draw();
+    //cout << "NBH : " << neibhor.size() << endl;
+    for (int i = 0; i < neibhor.size(); i++) {
+        if ((M0 - neibhor[i].point.pos).norm() < 4.0) {
+            neibhor[i].Draw();
+        }
+    }
 }
 void edit_elements::step() {
-    
+    update_pq();
+    redraw_all();
 }
+
+pair<DiscreteElement, DiscreteElement> edit_elements::exec_interaction(DiscreteElement Ai, DiscreteElement Bi) {
+    double A0B0l = 2.0;//(A0 - B0).norm();
+    double AiBil = (Ai.point.pos - Bi.point.pos).norm();
+    EVec2d Mi = (Ai.point.pos + Bi.point.pos) / 2.0;
+    EVec2d ui = (Bi.point.pos - Ai.point.pos).normalized();
+    EVec2d vi = EVec2d(ui.y(), -ui.x());
+
+    cout << "Ai x,y= " << Ai.point.pos.x() << "," << Ai.point.pos.y() << endl;
+    cout << "Bi x,y= " << Bi.point.pos.x() << "," << Bi.point.pos.y() << endl;
+    cout << " ui x,y= " << ui.x() << "," << ui.y() << endl;
+    cout << " scare : " << (AiBil / A0B0l) << " (" << AiBil <<"/"<< A0B0l<<") " << endl;
+
+    EVec2d nx_Ai = Mi + (ui * p_A0 + vi * q_A0) * (AiBil / A0B0l);
+    EVec2d nx_Bi = Mi + (ui * p_B0 + vi * q_B0) * (AiBil / A0B0l);
+
+    Ai.point.set_pos(nx_Ai); Bi.point.set_pos(nx_Bi);
+    
+
+    if (exist_edit_1 == exist_edit_2)return make_pair(Ai,Bi);
+
+    return make_pair(Ai, Bi);
+    //if (exist_edit_1 == false) {}
+    //else if (exist_edit_2 == false) {}
+}
+
+
 
 void DET::prPos(EVec2d p) {
     cout << " x,y= " << p.x() << "," << p.y() << endl;
@@ -153,7 +246,6 @@ void DiscreteElement::Draw_SelectedFlame(double line_width) {
     glPopMatrix();
 }
 
-
 //テクスチャの準備
 void DET::LoadTexture() {
     //後々値をとるように改造
@@ -195,8 +287,6 @@ void DET::SetTexture(char *filepath,GLuint texID) {
     //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 }
-
-
 //
 void DET::TEST(){
     int rep = Abst_elements.size();//一番最後はただのまるぽち
@@ -489,3 +579,4 @@ void DET::synth_Iter() {
     curState = 2;SynthCount++;
     cout << SynthCount << endl;
 }
+

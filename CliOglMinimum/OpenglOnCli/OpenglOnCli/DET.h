@@ -120,22 +120,22 @@ struct interface_data{
 
     int E_abst_hover = -1; double abst_hover_th = 1.0;
     int E_smpl_hover = -1; double smpl_hover_th = 1.0;
-    int E_edit_hover = -1; double edit_hover_th = 1.0;
+    int E_edit_hover = -1; double edit_hover_th = 1.0;//3
 
     int E_abst_just_cl = -1;
     int E_smpl_just_cl = -1;
 
-    int E_edit_just_cl = -1;
+    int E_edit_just_cl = -1;//3
 
     int E_abst_last_cl = -1;
     int E_smpl_last_cl = -1;
     
-    int E_edit_last_cl = -1;
+    int E_edit_last_cl = -1;//3
 
     int E_abst_drag = -1;
     int E_smpl_drag = -1;
-    
-    int E_edit_drag = -1;
+
+    int E_edit_drag = -1;//3
 
     int s2_edit1 = -1;
     int s2_edit2 = -1;
@@ -195,16 +195,14 @@ struct edit_elements {
 
     DiscreteElement E_A0, E_B0;
     EVec2d A0, B0, M0=EVec2d(-15,-5), AB, ABt;//OLD pos
-    double ABl;
-    
+    double ABl,ABl_real;
     vector<DiscreteElement> neibhor;
 
     //utils
-
     double theta;//A0B0ÇÃã¬äp
 
-    double p_A0 = 1.0 , q_A0 = 1.0;//çáê¨Ç…égÇ§åWêî
-    double p_B0 = 1.0, q_B0 = 1.0;//çáê¨Ç…égÇ§åWêî
+    double p_A0 = -1.0 , q_A0 = 0.0;//çáê¨Ç…égÇ§åWêî
+    double p_B0 = 1.0, q_B0 = 0.0;//çáê¨Ç…égÇ§åWêî
 
     edit_elements() {
     }
@@ -216,7 +214,7 @@ struct edit_elements {
     void update_input_info(DiscreteElement p, int hover, int just_cl, int last_cl, int drag);
 
     //void exec_interaction(DiscreteElement& Ai,int Bi_idx);
-    void exec_interaction(DiscreteElement& Ai, DiscreteElement& Bi);
+    pair<DiscreteElement, DiscreteElement> exec_interaction(DiscreteElement Ai, DiscreteElement Bi);
 
 
 
@@ -282,7 +280,7 @@ struct DET {//stands Dis
     //int NumOfout_elements = 300;
     //vector<DiscreteElement> out_elements;
     
-    int NumOfsample_elements = 120;
+    int NumOfsample_elements = 300;
     //int NumOfsample_elements = 600;
     vector<DiscreteElement> sample_elements;
     vector<int> handmade_element_idx;
@@ -404,7 +402,8 @@ struct DET {//stands Dis
         return ret;
     }
     vector<pair<int, int>> exec_Combine_all(vector<pair<int, int> > aibi_idx,int mode,bool preview = false) {//first ai sec bi
-        double ABl_real = ((B0 - A0).normalized()).norm();
+        
+        //double ABl_real = e_edit.ABl / e_edit.draw_scare;//((B0 - A0).normalized()).norm();
         vector<pair<int, int>> ret;
         unordered_map<int, double> Er_min;
         unordered_map<int, int> bi_idx;
@@ -418,20 +417,24 @@ struct DET {//stands Dis
         for (pair<int, int> p : aibi_idx) {
             int ai = p.first, bi = p.second;
             double AiBil = (sample_elements[ai].point.pos - sample_elements[bi].point.pos).norm();
-            double Err = abs(AiBil - ABl_real);
+            double Err = abs(AiBil - e_edit.ABl_real);
             
             if(Err < Er_min[ai]){
                 Er_min[ai] = Err;
                 bi_idx[ai] = bi;
             }
         }
+
+        ret.push_back(make_pair(current_sample_element_Idx_1, current_sample_element_Idx_2));
+        isCombined[current_sample_element_Idx_1] = true;
+        isCombined[current_sample_element_Idx_2] = true;
+
         for (int ai : type_tp_idx){
             if (isCombined[ai] == true)continue;
             int bi = bi_idx[ai];
             if(isCombined[bi] == true)continue;
 
             cout << "ai,bi: " << ai << "," << bi;
-
             if (preview == true) { ret.push_back(make_pair(ai,bi));}
             else if (mode == 0)exec_Combine(ai, bi, C0_inst);
             else if (mode == 1)exec_Expand(ai, bi, 0.75);
@@ -473,7 +476,6 @@ struct DET {//stands Dis
 
         sample_elements[bi].point.exist = false;
     }
-    
     EVec2d calc_Ci(EVec2d Ai, EVec2d Bi) {
         double AiBil = (Bi - Ai).norm(),k2 = AiBil / ABl;
         EVec2d Mi = (Ai + Bi) / 2.0, AiMi = Mi - Ai;
@@ -542,11 +544,17 @@ struct DET {//stands Dis
     edit_elements e_edit;
     interface_data d_inter;
 
+    int inter_hover_abst();
+    int inter_hover_smpl();
+    int inter_hover_edit();//curState == 3
+
+
+
+
     void Interface_Process() {
         int sel = get_hover_Sample_element_Idx(), sel_nbh_cur1;
         int sel_Abst = get_hover_Abst_element_Idx();
         get_hover_Edit_element_Idx();
-
 
         int& cur1 = current_sample_element_Idx_1;
         int& cur2 = current_sample_element_Idx_2;
@@ -562,12 +570,17 @@ struct DET {//stands Dis
             }else if (K_Down == KEY_D) {
                 sample_tex.DelTri();
             }
+            cout << "curS : " << curState << endl;
             
         }
 
-        cout << "Ab : " << d_inter.E_abst_hover
-            << "Sm : " << d_inter.E_smpl_hover
-            << "Ed : " << d_inter.E_edit_hover << endl;
+        //cout << "Ab : " << d_inter.E_abst_hover
+        //    << "Sm : " << d_inter.E_smpl_hover
+        //    << "Ed : " << d_inter.E_edit_hover << endl;
+
+        d_inter.update_step(btn_left_down, btn_left_up, btn_left);
+
+
 
         if (btn_left_down) {
             {
@@ -595,12 +608,13 @@ struct DET {//stands Dis
                 }
 
                 if (btn_left_down) {
-                    if (cur1 == -1)cur1 = sel;
+                    if (cur1 == -1) { cur1 = sel; current_sample_element_Idx_1 = sel;
+                    }
                     else if (cur2 == -1) {
-                        cur2 = sel;
+                        cur2 = sel; current_sample_element_Idx_2 = sel;
                         curState = 3;
 
-                        //*
+                        /*
                         edit_element_1.Copy_without_Point(sample_elements[cur1]); edit_element_1.cent = sample_elements[cur1].cent;
                         edit_element_2.Copy_without_Point(sample_elements[cur2]); edit_element_2.cent = sample_elements[cur2].cent;
                         state3_translate = edit1 - edit_element_1.point.pos;
@@ -608,7 +622,7 @@ struct DET {//stands Dis
 
                         edit_element_1.point.set_pos(edit1);
                         edit_element_1.SetZ(-0.05);
-                        edit_element_1.scare = state3_scare;
+                        edit_element_1.scare *= state3_scare;
 
                         around_elements_editing.clear();
                         tmp = state3_around_elements_editing(cur1, cur2);
@@ -617,7 +631,7 @@ struct DET {//stands Dis
                         edit_element_2.point.set_pos(edit1 + tmp2d);
                         edit_element_2.SetZ(-0.05);
 
-                        edit_element_2.scare = state3_scare;
+                        edit_element_2.scare *= state3_scare;
 
                         combine_pair = exec_Combine_all(ret_Combine_pair_list(edit_element_1, edit_element_2),0,true);
                         Combine_blueprint.resize(combine_pair.size());
@@ -633,19 +647,30 @@ struct DET {//stands Dis
                             around_elements_editing[i].SetTexture(sample_elements[tmp[i]]);
                             around_elements_editing[i].point.set_pos(tmp2d + edit1);
                             around_elements_editing[i].SetZ(-0.05);
-                            around_elements_editing[i].scare = state3_scare;
+                            around_elements_editing[i].scare *= state3_scare;
                             around_elements_editing[i].cent = sample_elements[cur1].cent;
                         }
                         //*/
                         
-                        /*
+                        //*
                         around_elements_editing.clear();
-                        combine_pair = exec_Combine_all(ret_Combine_pair_list(edit_element_1, edit_element_2), 0, true);
-                        Combine_blueprint.resize(combine_pair.size());
+                        
 
                         tmp = state3_around_elements_editing(cur1, cur2);
                         for (int i : tmp)arround_inst.push_back(sample_elements[i]);
                         e_edit.start_edit(sample_elements[cur1], sample_elements[cur2],arround_inst);
+
+                        //ébíËìI
+                        edit_element_1 = e_edit.E_A0; edit_element_1.point.set_pos(e_edit.A0);
+                        edit_element_2 = e_edit.E_B0; edit_element_2.point.set_pos(e_edit.B0);
+
+                        combine_pair = exec_Combine_all(ret_Combine_pair_list(edit_element_1, edit_element_2), 0, true);
+                        cout << combine_pair.size() << " pairs to be edit" << endl;
+                        Combine_blueprint.resize(combine_pair.size());
+
+
+
+
                         //*/
                     }
                     else
@@ -677,8 +702,8 @@ struct DET {//stands Dis
         case 3:
             //cout << "case 3" << endl;
 
-
-            if(!e_edit.isEditing)e_edit.update_input_info(pointer,-1,-1,-1,-1);
+            if (!e_edit.isEditing)e_edit.update_input_info(pointer, -1, -1, -1, -1);
+            else e_edit.update_input_info(pointer, d_inter.E_edit_hover, d_inter.E_edit_just_cl, d_inter.E_edit_last_cl, d_inter.E_edit_drag);
 
             if (sel_Abst != -1) {
                 if (btn_left_down) {
@@ -691,8 +716,6 @@ struct DET {//stands Dis
             }
             else {
             }
-
-
             if (pointer.type != pointer_copy.type) {
                 //C0_inst.SetTexture(pointer);
 
@@ -739,9 +762,47 @@ struct DET {//stands Dis
 
             }
 
-            //e_edit.redraw_all();
+            e_edit.step();
 
-            //*
+            {
+            
+                if (curK == 13) {
+                    vector<pair<DiscreteElement, DiscreteElement>> p_inst;
+                    for (int i = 0; i < combine_pair.size();++i) {
+                        pair<int, int> p = combine_pair[i];
+                        //cout << " " << p.first << "," << p.second;
+                        if (p.first == -1 || p.second == -1)continue;
+
+                        p_inst.push_back(e_edit.exec_interaction(sample_elements[p.first], sample_elements[p.second]));
+                    }
+
+                    cout << p_inst.size() << " = " << combine_pair.size() << endl;
+                    int adjust = 0;
+                    for (int i = 0; i < combine_pair.size(); ++i) {
+                        pair<int, int> p = combine_pair[i];
+                        //cout << " " << p.first << "," << p.second;
+                        if (p.first == -1 || p.second == -1) {
+                            ++adjust;
+                            continue;
+                        }
+
+                        cout << " " << p.first << "," << p.second;
+                        sample_elements[p.first] = p_inst[i-adjust].first;
+                        sample_elements[p.second] = p_inst[i-adjust].second;
+                    }
+
+                    cout << endl;
+                    e_edit.end_edit();
+                    curState = 2;
+
+                    update_Point_DET2CVT();
+                    sample_tex.DelTri();
+                    update_Point_CVT2DET();
+                }
+            
+            }
+
+            /*
             edit_element_1.Draw(); //edit_element_1.DBG();
             edit_element_2.Draw(); //edit_element_2.DBG();
             //cout << "NBH" << endl;
@@ -751,27 +812,23 @@ struct DET {//stands Dis
             }
             //*/
 
-
-
-
-
             if (btn_left_up) {
                 //îÕàÕì‡Ç…ì¸Ç¡ÇƒÇÈ
                 {
 
-                    /*
+                    
                     AC = C0 - A0;AB = (B0 - A0); ABt = EVec2d(-AB.y(), AB.x());
                     ACl = AC.norm(); ABl = AB.norm(); ABtl = ABt.norm();
                     cos_CAB = (AB.dot(AC)) / (ABl*ACl);sin_CAB = sqrt(1 - cos_CAB * cos_CAB);
                     A0C0 = AB.normalized()*(ACl * cos_CAB) + ABt.normalized()*(ACl * sin_CAB);
-                    */
+                    //*/
 
 
                     /*
                     cout <<"relat pos "<<AC.x() << " , " << AC.y() << " = " << A0C0.x() << " , " << A0C0.y() << endl;
                     cout << "AB = " << AB.x() << " , " << AB.y() <<" Real A0B0: "<<ABl/ state3_scare << endl;
                     cout << "ABt = " << ABt.x() << " , " << ABt.y() << endl;
-                    */
+                    //*/
                     
                     //ãKë•ìoò^
                     
